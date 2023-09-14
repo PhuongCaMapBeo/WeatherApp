@@ -20,7 +20,15 @@ import FormForecastDay from '../components/commons/FormForecastDay';
 import {SelectList} from 'react-native-dropdown-select-list';
 import WeatherAdvice from '../components/commons/WeatherAdvice';
 
-import { backgroundGenerator } from '../utils/funcSupport';
+import { backgroundGenerator, windType } from '../utils/funcSupport';
+import CardAir from '../components/commons/CardAir';
+import CardDetail from '../components/commons/CardDetail';
+import { Ic_Temperature } from '../components/Icons/Ic_Temperature';
+import { Ic_Wind } from '../components/Icons/Ic_Wind';
+import { Ic_Rain } from '../components/Icons/Ic_Rain';
+import { Ic_Eye } from '../components/Icons/Ic_Eye';
+import { Ic_Uv } from '../components/Icons/Ic_Uv';
+import { Ic_Pressure } from '../components/Icons/Ic_Pressure';
 
 
 export default function HomeScreen() {
@@ -28,7 +36,7 @@ export default function HomeScreen() {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [weather, setWeather] = useState({});
-  const [numberForecastDay, setNumberForecastDay] = useState('2');
+  const [numberForecastDay, setNumberForecastDay] = useState('7');
 
 
   const data = [
@@ -116,7 +124,8 @@ export default function HomeScreen() {
           />
         </View>
       ) : (
-        <ScrollView>
+        <ScrollView
+        showsVerticalScrollIndicator={false}>
           <StatusBar
             backgroundColor="transparent"
             translucent={true}
@@ -184,17 +193,14 @@ export default function HomeScreen() {
             </View>
 
             {/* forecast section */}
-            <View className="mx-4 flex justify-around flex-1 mb-2 mt-8">
+            <View className="mx-4 flex justify-around flex-1 mb-8">
               {/* location */}
-              <Text className="text-white text-center text-2xl font-bold">
+              <Text className="text-white text-center text-2xl font-bold mb-8">
                 {location?.name},
                 <Text className="text-lg font-semibold text-gray-300">
                   {location?.country}
                 </Text>
               </Text>
-              {/* weather icon */}
-              <View className="flex-row justify-center">
-              </View>
 
               {/* degree celcius */}
               <View className="space-y-2 mt-4">
@@ -205,34 +211,6 @@ export default function HomeScreen() {
                   {current?.condition?.text}
                 </Text>
               </View>
-
-              {/* other stats */}
-              <View className="flex-row justify-between mx-4 mt-2">
-                <View className="flex-row space-x-2 items-center">
-                  {/* <Image source={require('../assests/icons/wind.png')} className="w-6 h-6" /> */}
-                  <Text className="text-white font-semibold text-base">
-                    {current?.wind_kph}km
-                  </Text>
-                </View>
-                <View className="flex-row space-x-2 items-center">
-                  <Image
-                    source={require('../assets/icons/drop.png')}
-                    className="w-6 h-6"
-                  />
-                  <Text className="text-white font-semibold text-base">
-                    {current?.humidity}%
-                  </Text>
-                </View>
-                <View className="flex-row space-x-2 items-center">
-                  <Image
-                    source={require('../assets/icons/sun.png')}
-                    className="w-6 h-6"
-                  />
-                  <Text className="text-white font-semibold text-base">
-                    {weather?.forecast?.forecastday[0]?.astro?.sunrise}
-                  </Text>
-                </View>
-              </View>
             </View>
             {/* forecast for next hours */}
             <View
@@ -240,7 +218,7 @@ export default function HomeScreen() {
               style={{backgroundColor: theme.bgWhite(0.15)}}>
               <ScrollView
                 horizontal
-                contentContainerStyle={{paddingHorizontal: 15}}
+                contentContainerStyle={{paddingHorizontal: 5}}
                 showsHorizontalScrollIndicator={false}>
                 {weather.forecast?.forecastday[0]?.hour?.map((item, index) => {
                   let hour = item.time.substr(11, 5);
@@ -265,29 +243,43 @@ export default function HomeScreen() {
             {/* WeatherAdvice */}
             <WeatherAdvice code={current?.condition?.code}/>
             {/* forecast for next days */}
-            <ScrollView className="mb-2 space-y-3">
+            <View className="mb-8 space-y-3">
               <View className="flex-row items-center justify-items-center mx-5 space-x-2">
                 <CalendarDaysIcon size="22" color="white" />
-                <SelectList
+                {/* <SelectList
                   setSelected={val => setNumberForecastDay(val)}
                   data={data}
-                  // save="value"
                   search={false}
                   placeholder=""
                   defaultOption={{key: '7', value: '7'}}
-                />
-                <Text className="text-white text-base mt-2">{`Dự báo ${numberForecastDay} ngày`}</Text>
+                /> */}
+                <Text className="text-white text-base mt-2 mx-auto my-auto">{`Dự báo ${numberForecastDay} ngày`}</Text>
               </View>
               <View
                 className={
-                  'flex  rounded-xl py-3 space-y-1 mx-4 max-w-screen-sm'
+                  'flex  rounded-xl py-4 space-y-1 mx-4 max-w-screen-sm'
                 }
                 style={{backgroundColor: theme.bgWhite(0.15)}}>
                 {weather?.forecast?.forecastday.map((item, index) => (
                   <FormForecastDay key={index} item={item} />
                 ))}
               </View>
-            </ScrollView>
+
+            </View>
+             {/* air quality */}
+             <CardAir data={current?.air_quality} />
+            {/* detailWeather */}
+            <View className="p-4" >
+              <Text className="text-white text-sm font-medium text-center text-left">Chi tiết thời tiết</Text>
+              <View className= "flex flex-row flex-wrap justify-between">
+                <CardDetail Icon={Ic_Temperature} title={"Nhiệt độ cảm nhận"} info={current?.feelslike_c} unit={"°"}/>
+                <CardDetail Icon={Ic_Wind} title={windType(current?.wind_dir)} info={current?.wind_kph} unit = {"km/h"}/>
+                <CardDetail Icon={Ic_Rain} title={"Độ ẩm"} info={current?.humidity} unit={"%"}/>
+                <CardDetail Icon={Ic_Eye} title={"Tầm nhìn"} info={current?.vis_km} unit={"km"}/>
+                <CardDetail Icon={Ic_Uv} title={"UV"} info={current?.uv} unit=""/>
+                <CardDetail Icon={Ic_Pressure} title={"Áp suất không khí"} info={current?.pressure_mb} unit="hPa"/>
+              </View>
+            </View>
           </SafeAreaView>
           <Text className="text-white mx-auto my-auto mt-40 mb-2">
             Design by @Phuong
