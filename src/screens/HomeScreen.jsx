@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+  PermissionsAndroid,
 } from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -19,6 +20,7 @@ import {getData, storeData} from '../utils/asyncStorage';
 import FormForecastDay from '../components/commons/FormForecastDay';
 import {SelectList} from 'react-native-dropdown-select-list';
 import WeatherAdvice from '../components/commons/WeatherAdvice';
+import Geolocation from 'react-native-geolocation-service';
 
 import { backgroundGenerator, windType } from '../utils/funcSupport';
 import CardAir from '../components/commons/CardAir';
@@ -29,6 +31,9 @@ import { Ic_Rain } from '../components/Icons/Ic_Rain';
 import { Ic_Eye } from '../components/Icons/Ic_Eye';
 import { Ic_Uv } from '../components/Icons/Ic_Uv';
 import { Ic_Pressure } from '../components/Icons/Ic_Pressure';
+import { Facebook } from 'react-content-loader/native'
+
+
 
 
 export default function HomeScreen() {
@@ -101,28 +106,45 @@ export default function HomeScreen() {
 
   const {location, current} = weather;
 
+  useEffect(()=>{
+    requestCameraPermission();
+  },[]);
+
+  const requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('You can use the camera');
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const geoLocation =()=>{
+    Geolocation.getCurrentPosition(
+      (position) => {
+        console.log(position);
+      },
+      (error) => {
+        // See error code charts below.
+        console.log(error.code, error.message);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+  );
+  }
+  geoLocation();
+
 
   return (
     <>
       {loading ? (
-        <View className="flex-1 flex-row justify-center items-center w-full h-full">
-          <StatusBar
-            backgroundColor="transparent"
-            translucent={true}
-            barStyle="dark-content"
-          />
-          <Image
-            blurRadius={70}
-            source={require('../assets/images/morning.jpg')}
-            className="absolute w-full h-full"
-          />
-          <Progress.CircleSnail
-            thickness={10}
-            size={140}
-            color="#20bde8"
-            className="mx-auto my-auto"
-          />
-        </View>
+        
+        <Facebook uniqueKey="my-random-value" />
       ) : (
         <ScrollView
         showsVerticalScrollIndicator={false}>
@@ -259,7 +281,7 @@ export default function HomeScreen() {
                 className={
                   'flex  rounded-xl py-4 space-y-1 mx-4 max-w-screen-sm'
                 }
-                style={{backgroundColor: theme.bgWhite(0.15)}}>
+                style={{backgroundColor: "000000"}}>
                 {weather?.forecast?.forecastday.map((item, index) => (
                   <FormForecastDay key={index} item={item} />
                 ))}
@@ -281,9 +303,6 @@ export default function HomeScreen() {
               </View>
             </View>
           </SafeAreaView>
-          <Text className="text-white mx-auto my-auto mt-40 mb-2">
-            Design by @Phuong
-          </Text>
         </ScrollView>
       )}
     </>
