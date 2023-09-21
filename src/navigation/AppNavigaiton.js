@@ -9,9 +9,14 @@ import { Ic_Future } from '../components/Icons/Ic_Future';
 import MapScreen from '../screens/MapScreen';
 import FutureScreen from '../screens/FutureScreen';
 import HistoryScreen from '../screens/HistoryScreen';
-import {theme} from '../theme/index';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { Ic_History } from '../components/Icons/Ic_History';
+import { Ic_Eye } from '../components/Icons/Ic_Eye';
+import CustomDrawerContent from '../components/commons/CustomDrawerContent';
+import { Ic_Setting } from '../components/Icons/Ic_Setting';
+import SettingScreen from '../screens/SettingScreen';
 
-const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
 
 const iconComponents = {
   Map: {focused: Ic_Map, unfocused: Ic_Map},
@@ -23,68 +28,105 @@ const iconComponents = {
 function AppNavigation() {
 
   return (
-    <Tab.Navigator
-      screenOptions={({route}) => ({
-        tabBarLabel: () => null, 
-        tabBarIcon: ({color, focused, size}) => {
-          const IconComponent = focused
-            ? iconComponents[route.name].focused
-            : iconComponents[route.name].unfocused;
-
-          return <IconComponent color={color} size={size} />;
-        },
-
-        tabBarStyle: {
-          position: 'absolute',
-          bottom: 0,
-          backgroundColor: "#000",
-          opacity: 0.6,
-
-          height:40,
-          borderColor: "#fff",
-          borderTopWidth: 1,
-        },
-        tabBarHideOnKeyboard:true,
-      })}>
-      <Tab.Screen
-        name="Map"
-        options={({navigation}) => ({
-          headerShown: false
-        })}
-        component={MapScreen}
-      />
-      <Tab.Screen
-        name="Future"
-        options={({navigation}) => ({
-          headerShown: false
-        })}
-        component={FutureScreen}
-      />
-      <Tab.Screen
-        name="Circle"
-        options={({navigation,route}) => ({
-          tabBarLabelStyle: {
-            fontWeight: navigation.isFocused() ? '600' : '400',
-            fontSize:13,
-            marginTop:5
+    <Drawer.Navigator
+      initialRouteName="Home"
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      screenOptions={
+        {
+          drawerStyle:{
+            backgroundColor: "#fff",
+            width: 250,
           },
-          headerShown: false,
-        })}
+          headerStyle:{
+            backgroundColor: "#000",
+            opacity: 0.16,
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold"
+          },
+          drawerActiveBackgroundColor:"#9ecbe6" ,
+          drawerActiveTintColor: "blue",
+          drawerLabelStyle:{
+            color: "#111",
+            marginLeft: -25, 
+          },
+          drawerItemStyle: {
+            borderRadius: 30, // Thêm borderRadius khi mục được active
+          },
+        }
+      }
+
+       >
+      <Drawer.Screen
+        name="Home"
+        options={
+          {
+            drawrLabel: "Dự báo thời tiết hiện tại",
+            title: "Dự báo thời tiết hiện tại",
+            headerShown: false,
+            drawerIcon: ()=>(
+              <Ic_Circle />
+            )
+          }
+        }
         component={HomeScreen}
       />
-      <Tab.Screen
+      <Drawer.Screen
+        name="Map"
+        options={
+          {
+            drawrLabel: "Dự báo thời tiết tương lai",
+            title: "Dự báo thời tiết tương lai",
+            drawerIcon: ()=>(
+              <Ic_Future />
+            )
+          }
+
+        }
+        component={HomeScreen}
+      />
+      <Drawer.Screen
+        name="MapScreen"
+        options={
+          {
+            drawerLabel: "Bản đồ",
+            title: "Bản đồ",
+            drawerIcon: ()=>(
+              <Ic_Map />
+            )
+          }
+        }
+        component={MapScreen}
+      />
+      <Drawer.Screen
         name="History"
-        options={({navigation}) => ({
-          tabBarLabelStyle: {
-            fontWeight: navigation.isFocused() ? '600' : '400',
-            fontSize:13,
-            marginTop:5
-          },
-          headerShown: false
-        })}
+        options={
+          {
+            drawrLabel: "Lịch sử",
+            title: "Lịch sử",
+            drawerIcon: ()=>(
+              <Ic_History />
+            )
+          }
+        }
         component={HistoryScreen}
       />
-    </Tab.Navigator>
+      <Drawer.Screen
+        name="Setting"
+        options={
+          {
+            drawrLabel: "Cài đặt",
+            title: "Cài đặt",
+            drawerIcon: ()=>(
+              <Ic_Setting/>
+            )
+          }
+        }
+        component={SettingScreen}
+      />
+      
+    </Drawer.Navigator>
   );
 }
 

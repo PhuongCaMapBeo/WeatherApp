@@ -15,34 +15,30 @@ import {CalendarDaysIcon, MapPinIcon} from 'react-native-heroicons/solid';
 import {debounce} from 'lodash';
 import {theme} from '../theme/index';
 import {fetchLocations, fetchWeatherForecast} from '../api/weather';
-import * as Progress from 'react-native-progress';
 import {getData, storeData} from '../utils/asyncStorage';
 import FormForecastDay from '../components/commons/FormForecastDay';
 import {SelectList} from 'react-native-dropdown-select-list';
 import WeatherAdvice from '../components/commons/WeatherAdvice';
 import Geolocation from 'react-native-geolocation-service';
 
-import { backgroundGenerator, windType } from '../utils/funcSupport';
+import {backgroundGenerator, windType} from '../utils/funcSupport';
 import CardAir from '../components/commons/CardAir';
 import CardDetail from '../components/commons/CardDetail';
-import { Ic_Temperature } from '../components/Icons/Ic_Temperature';
-import { Ic_Wind } from '../components/Icons/Ic_Wind';
-import { Ic_Rain } from '../components/Icons/Ic_Rain';
-import { Ic_Eye } from '../components/Icons/Ic_Eye';
-import { Ic_Uv } from '../components/Icons/Ic_Uv';
-import { Ic_Pressure } from '../components/Icons/Ic_Pressure';
-import { Facebook } from 'react-content-loader/native'
+import {Ic_Temperature} from '../components/Icons/Ic_Temperature';
+import {Ic_Wind} from '../components/Icons/Ic_Wind';
+import {Ic_Rain} from '../components/Icons/Ic_Rain';
+import {Ic_Eye} from '../components/Icons/Ic_Eye';
+import {Ic_Uv} from '../components/Icons/Ic_Uv';
+import {Ic_Pressure} from '../components/Icons/Ic_Pressure';
+import {Ic_Bar} from '../components/Icons/Ic_Bar';
 
 
-
-
-export default function HomeScreen() {
+export default function HomeScreen({navigation}) {
   const [showSearch, toggleSearch] = useState(false);
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [weather, setWeather] = useState({});
   const [numberForecastDay, setNumberForecastDay] = useState('7');
-
 
   const data = [
     {key: '1', value: '1'},
@@ -53,7 +49,6 @@ export default function HomeScreen() {
     {key: '6', value: '6'},
     {key: '7', value: '7'},
   ];
-
 
   const handleSearch = search => {
     // console.log('value: ',search);
@@ -106,9 +101,9 @@ export default function HomeScreen() {
 
   const {location, current} = weather;
 
-  useEffect(()=>{
+  useEffect(() => {
     requestCameraPermission();
-  },[]);
+  }, []);
 
   const requestCameraPermission = async () => {
     try {
@@ -125,29 +120,28 @@ export default function HomeScreen() {
     }
   };
 
-  const geoLocation =()=>{
+  const geoLocation = () => {
     Geolocation.getCurrentPosition(
-      (position) => {
+      position => {
         console.log(position);
       },
-      (error) => {
+      error => {
         // See error code charts below.
         console.log(error.code, error.message);
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-  );
-  }
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    );
+  };
   geoLocation();
-
 
   return (
     <>
-      {loading ? (
+             {loading ? (
         
-        <Facebook uniqueKey="my-random-value" />
+        null
       ) : (
-        <ScrollView
-        showsVerticalScrollIndicator={false}>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
           <StatusBar
             backgroundColor="transparent"
             translucent={true}
@@ -155,63 +149,77 @@ export default function HomeScreen() {
           />
           <Image
             blurRadius={70}
-            source={backgroundGenerator(location?.localtime,current?.condition?.code)}
+            source={backgroundGenerator(
+              location?.localtime,
+              current?.condition?.code,
+            )}
             className="absolute w-full h-full"
           />
           <SafeAreaView className="flex flex-1">
             {/* search section */}
-
-            <View style={{height: '7%'}} className="mx-4 relative z-50">
-              <View
-                className="flex-row justify-end items-center rounded-full"
-                style={{
-                  backgroundColor: showSearch
-                    ? theme.bgWhite(0.2)
-                    : 'transparent',
-                }}>
-                {showSearch ? (
-                  <TextInput
-                    onChangeText={handleTextDebounce}
-                    placeholder="Search city"
-                    placeholderTextColor={'lightgray'}
-                    className="pl-6 h-10 pb-1 flex-1 text-base text-white"
-                  />
-                ) : null}
+            <View
+              className={`${
+                !showSearch ? 'flex flex-row justify-between' : ''
+              } mt-4`}>
+              {!showSearch ? (
                 <TouchableOpacity
-                  onPress={() => toggleSearch(!showSearch)}
-                  className="rounded-full p-3 m-1"
-                  style={{backgroundColor: theme.bgWhite(0.3)}}>
-                  {showSearch ? (
-                    <XMarkIcon size="25" color="white" />
-                  ) : (
-                    <MagnifyingGlassIcon size="25" color="white" />
-                  )}
+                  className="mx-4"
+                  onPress={() => navigation.toggleDrawer()}>
+                  <Ic_Bar />
                 </TouchableOpacity>
-              </View>
-              {locations.length > 0 && showSearch ? (
-                <View className="absolute w-full bg-gray-300 top-16 rounded-3xl ">
-                  {locations.map((loc, index) => {
-                    let showBorder = index + 1 != locations.length;
-                    let borderClass = showBorder
-                      ? ' border-b-2 border-b-gray-400'
-                      : '';
-                    return (
-                      <TouchableOpacity
-                        key={index}
-                        onPress={() => handleLocation(loc)}
-                        className={
-                          'flex-row items-center border-0 p-3 px-4 mb-1 ' +
-                          borderClass
-                        }>
-                        <MapPinIcon size="20" color="gray" />
-                        <Text className="text-black text-lg ml-2">
-                          {loc?.name}, {loc?.country}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
               ) : null}
+              <View style={{height: '7%'}} className="mx-4  my-1 relative z-50">
+                <View
+                  className="flex-row justify-end items-center rounded-full"
+                  style={{
+                    backgroundColor: showSearch
+                      ? theme.bgWhite(0.2)
+                      : 'transparent',
+                  }}>
+                  {showSearch ? (
+                    <TextInput
+                      onChangeText={handleTextDebounce}
+                      placeholder="Search city"
+                      placeholderTextColor={'lightgray'}
+                      className="pl-6 h-10 pb-1 flex-1 text-base text-white"
+                    />
+                  ) : null}
+                  <TouchableOpacity
+                    onPress={() => toggleSearch(!showSearch)}
+                    className="rounded-full p-3 m-1"
+                    style={{backgroundColor: theme.bgWhite(0.3)}}>
+                    {showSearch ? (
+                      <XMarkIcon size="25" color="white" />
+                    ) : (
+                      <MagnifyingGlassIcon size="25" color="white" />
+                    )}
+                  </TouchableOpacity>
+                </View>
+                {locations.length > 0 && showSearch ? (
+                  <View className="absolute w-full bg-gray-300 top-16 rounded-3xl ">
+                    {locations.map((loc, index) => {
+                      let showBorder = index + 1 != locations.length;
+                      let borderClass = showBorder
+                        ? ' border-b-2 border-b-gray-400'
+                        : '';
+                      return (
+                        <TouchableOpacity
+                          key={index}
+                          onPress={() => handleLocation(loc)}
+                          className={
+                            'flex-row items-center border-0 p-3 px-4 mb-1 ' +
+                            borderClass
+                          }>
+                          <MapPinIcon size="20" color="gray" />
+                          <Text className="text-black text-lg ml-2">
+                            {loc?.name}, {loc?.country}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                ) : null}
+              </View>
             </View>
 
             {/* forecast section */}
@@ -220,7 +228,7 @@ export default function HomeScreen() {
               <Text className="text-white text-center text-2xl font-bold mb-8">
                 {location?.name},
                 <Text className="text-lg font-semibold text-gray-300">
-                  {location?.country}
+                  {` ${location?.country}`}
                 </Text>
               </Text>
 
@@ -263,7 +271,7 @@ export default function HomeScreen() {
               </ScrollView>
             </View>
             {/* WeatherAdvice */}
-            <WeatherAdvice code={current?.condition?.code}/>
+            <WeatherAdvice code={current?.condition?.code} />
             {/* forecast for next days */}
             <View className="mb-8 space-y-3">
               <View className="flex-row items-center justify-items-center mx-5 space-x-2">
@@ -281,30 +289,60 @@ export default function HomeScreen() {
                 className={
                   'flex  rounded-xl py-4 space-y-1 mx-4 max-w-screen-sm'
                 }
-                style={{backgroundColor: "000000"}}>
+                style={{backgroundColor: '000000'}}>
                 {weather?.forecast?.forecastday.map((item, index) => (
                   <FormForecastDay key={index} item={item} />
                 ))}
               </View>
-
             </View>
-             {/* air quality */}
-             <CardAir data={current?.air_quality} />
+            {/* air quality */}
+            <CardAir data={current?.air_quality} />
             {/* detailWeather */}
-            <View className="p-4" >
-              <Text className="text-white text-sm font-medium text-center text-left">Chi tiết thời tiết</Text>
-              <View className= "flex flex-row flex-wrap justify-between">
-                <CardDetail Icon={Ic_Temperature} title={"Nhiệt độ cảm nhận"} info={current?.feelslike_c} unit={"°"}/>
-                <CardDetail Icon={Ic_Wind} title={windType(current?.wind_dir)} info={current?.wind_kph} unit = {"km/h"}/>
-                <CardDetail Icon={Ic_Rain} title={"Độ ẩm"} info={current?.humidity} unit={"%"}/>
-                <CardDetail Icon={Ic_Eye} title={"Tầm nhìn"} info={current?.vis_km} unit={"km"}/>
-                <CardDetail Icon={Ic_Uv} title={"UV"} info={current?.uv} unit=""/>
-                <CardDetail Icon={Ic_Pressure} title={"Áp suất không khí"} info={current?.pressure_mb} unit="hPa"/>
+            <View className="p-4">
+              <Text className="text-white text-sm font-medium text-center text-left">
+                Chi tiết thời tiết
+              </Text>
+              <View className="flex flex-row flex-wrap justify-between">
+                <CardDetail
+                  Icon={Ic_Temperature}
+                  title={'Nhiệt độ cảm nhận'}
+                  info={current?.feelslike_c}
+                  unit={'°'}
+                />
+                <CardDetail
+                  Icon={Ic_Wind}
+                  title={windType(current?.wind_dir)}
+                  info={current?.wind_kph}
+                  unit={'km/h'}
+                />
+                <CardDetail
+                  Icon={Ic_Rain}
+                  title={'Độ ẩm'}
+                  info={current?.humidity}
+                  unit={'%'}
+                />
+                <CardDetail
+                  Icon={Ic_Eye}
+                  title={'Tầm nhìn'}
+                  info={current?.vis_km}
+                  unit={'km'}
+                />
+                <CardDetail
+                  Icon={Ic_Uv}
+                  title={'UV'}
+                  info={current?.uv}
+                  unit=""
+                />
+                <CardDetail
+                  Icon={Ic_Pressure}
+                  title={'Áp suất không khí'}
+                  info={current?.pressure_mb}
+                  unit="hPa"
+                />
               </View>
             </View>
           </SafeAreaView>
         </ScrollView>
-      )}
-    </>
+      )}</>
   );
 }
