@@ -24,14 +24,15 @@ import Geolocation from 'react-native-geolocation-service';
 import {backgroundGenerator, windType} from '../utils/funcSupport';
 import CardAir from '../components/commons/CardAir';
 import CardDetail from '../components/commons/CardDetail';
-import {Ic_Temperature} from '../components/Icons/Ic_Temperature';
-import {Ic_Wind} from '../components/Icons/Ic_Wind';
-import {Ic_Rain} from '../components/Icons/Ic_Rain';
-import {Ic_Eye} from '../components/Icons/Ic_Eye';
-import {Ic_Uv} from '../components/Icons/Ic_Uv';
-import {Ic_Pressure} from '../components/Icons/Ic_Pressure';
-import {Ic_Bar} from '../components/Icons/Ic_Bar';
-
+import {
+  Ic_Temperature,
+  Ic_Wind,
+  Ic_Rain,
+  Ic_Eye,
+  Ic_Uv,
+  Ic_Pressure,
+  Ic_Bar,
+} from '../components/Icons/index';
 
 export default function HomeScreen({navigation}) {
   const [showSearch, toggleSearch] = useState(false);
@@ -39,16 +40,6 @@ export default function HomeScreen({navigation}) {
   const [loading, setLoading] = useState(true);
   const [weather, setWeather] = useState({});
   const [numberForecastDay, setNumberForecastDay] = useState('7');
-
-  const data = [
-    {key: '1', value: '1'},
-    {key: '2', value: '2'},
-    {key: '3', value: '3'},
-    {key: '4', value: '4'},
-    {key: '5', value: '5'},
-    {key: '6', value: '6'},
-    {key: '7', value: '7'},
-  ];
 
   const handleSearch = search => {
     // console.log('value: ',search);
@@ -107,6 +98,7 @@ export default function HomeScreen({navigation}) {
 
   const requestCameraPermission = async () => {
     try {
+      setLoading(true);
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       );
@@ -136,11 +128,7 @@ export default function HomeScreen({navigation}) {
 
   return (
     <>
-             {loading ? (
-        
-        null
-      ) : (
-
+      {loading ? null : (
         <ScrollView showsVerticalScrollIndicator={false}>
           <StatusBar
             backgroundColor="transparent"
@@ -165,7 +153,7 @@ export default function HomeScreen({navigation}) {
                 <TouchableOpacity
                   className="mx-4"
                   onPress={() => navigation.toggleDrawer()}>
-                  <Ic_Bar />
+                  <Ic_Bar color="white" />
                 </TouchableOpacity>
               ) : null}
               <View style={{height: '7%'}} className="mx-4  my-1 relative z-50">
@@ -276,13 +264,6 @@ export default function HomeScreen({navigation}) {
             <View className="mb-8 space-y-3">
               <View className="flex-row items-center justify-items-center mx-5 space-x-2">
                 <CalendarDaysIcon size="22" color="white" />
-                {/* <SelectList
-                  setSelected={val => setNumberForecastDay(val)}
-                  data={data}
-                  search={false}
-                  placeholder=""
-                  defaultOption={{key: '7', value: '7'}}
-                /> */}
                 <Text className="text-white text-base mt-2 mx-auto my-auto">{`Dự báo ${numberForecastDay} ngày`}</Text>
               </View>
               <View
@@ -307,7 +288,7 @@ export default function HomeScreen({navigation}) {
                   Icon={Ic_Temperature}
                   title={'Nhiệt độ cảm nhận'}
                   info={current?.feelslike_c}
-                  unit={'°'}
+                  unit={'°C'}
                 />
                 <CardDetail
                   Icon={Ic_Wind}
@@ -341,8 +322,17 @@ export default function HomeScreen({navigation}) {
                 />
               </View>
             </View>
+            <Text className="mx-auto text-white opacity-60 mt-4 mb-2">
+              Thông tin được cung cấp bởi{' '}
+              <Text
+                style={{textDecorationLine: 'underline'}}
+                onPress={() => Linking.openURL('https://www.weatherapi.com/')}>
+                WeatherApi
+              </Text>
+            </Text>
           </SafeAreaView>
         </ScrollView>
-      )}</>
+      )}
+    </>
   );
 }

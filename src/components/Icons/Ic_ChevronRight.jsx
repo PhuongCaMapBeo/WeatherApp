@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-export const Ic_Bar = ({color}) => {
+export const Ic_ChevronRight = () => {
   return (
     <View>
       <Svg
@@ -12,12 +12,12 @@ export const Ic_Bar = ({color}) => {
         xmlns="http://www.w3.org/2000/svg"
       >
         <Path
-          stroke={color} 
+          stroke="black" 
           fill="none"
           strokeWidth={1.5}
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5"
+          d="M8.25 4.5l7.5 7.5-7.5 7.5" 
         />
       </Svg>
     </View>

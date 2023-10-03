@@ -81,3 +81,6 @@ export const windType = type => {
   }
   return windName;
 };
+export const checkUv = (uv)=>{
+  
+}

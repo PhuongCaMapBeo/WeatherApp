@@ -1,12 +1,9 @@
 import React from 'react'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
 import HomeScreen from '../screens/HomeScreen';
 import { Ic_Map } from '../components/Icons/Ic_Map';
 import { Ic_Bar } from '../components/Icons/Ic_Bar';
 import { Ic_Circle } from '../components/Icons/Ic_Circle';
 import { Ic_Future } from '../components/Icons/Ic_Future';
-import MapScreen from '../screens/MapScreen';
 import FutureScreen from '../screens/FutureScreen';
 import HistoryScreen from '../screens/HistoryScreen';
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -87,19 +84,6 @@ function AppNavigation() {
         component={HomeScreen}
       />
       <Drawer.Screen
-        name="MapScreen"
-        options={
-          {
-            drawerLabel: "Bản đồ",
-            title: "Bản đồ",
-            drawerIcon: ()=>(
-              <Ic_Map />
-            )
-          }
-        }
-        component={MapScreen}
-      />
-      <Drawer.Screen
         name="History"
         options={
           {
@@ -118,6 +102,7 @@ function AppNavigation() {
           {
             drawrLabel: "Cài đặt",
             title: "Cài đặt",
+            headerShown: false,
             drawerIcon: ()=>(
               <Ic_Setting/>
             )
