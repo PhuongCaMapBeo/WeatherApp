@@ -77,17 +77,19 @@ function AppNavigation() {
             title: "Dự báo thời tiết tương lai",
             drawerIcon: ()=>(
               <Ic_Future />
-            )
+            ),
+            headerShown: false,
           }
 
         }
-        component={HomeScreen}
+        component={FutureScreen}
       />
       <Drawer.Screen
         name="History"
         options={
           {
             drawrLabel: "Lịch sử",
+            headerShown: false,
             title: "Lịch sử",
             drawerIcon: ()=>(
               <Ic_History />

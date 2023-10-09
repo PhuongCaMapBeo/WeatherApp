@@ -7,6 +7,7 @@ import {
   ScrollView,
   StatusBar,
   PermissionsAndroid,
+  ImageBackground,
 } from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -33,6 +34,7 @@ import {
   Ic_Pressure,
   Ic_Bar,
 } from '../components/Icons/index';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen({navigation}) {
   const [showSearch, toggleSearch] = useState(false);
@@ -50,10 +52,27 @@ export default function HomeScreen({navigation}) {
       });
   };
 
-  const handleLocation = loc => {
+  const handleLocation = async (loc) => {
     setLoading(true);
     toggleSearch(false);
     setLocations([]);
+    let historyLoc = JSON.parse(await getData('HistoryLoc')) || [];
+    if(historyLoc){
+      if(historyLoc.length < 4){
+      historyLoc.push(loc.name);
+      storeData('HistoryLoc',JSON.stringify(historyLoc));
+      console.log(1);
+    }else{
+      historyLoc.shift();
+      console.log(historyLoc);
+      historyLoc.push(loc.name);
+      storeData('HistoryLoc',JSON.stringify(historyLoc));
+    }
+    }else{
+      storeData('HistoryLoc',JSON.stringify([loc.name]));
+      console.log(2);
+    }
+    console.log(loc.name);
     fetchWeatherForecast({
       cityName: loc.name,
       days: '7',
@@ -115,7 +134,7 @@ export default function HomeScreen({navigation}) {
   const geoLocation = () => {
     Geolocation.getCurrentPosition(
       position => {
-        console.log(position);
+      
       },
       error => {
         // See error code charts below.
@@ -126,211 +145,222 @@ export default function HomeScreen({navigation}) {
   };
   geoLocation();
 
+
+
   return (
     <>
       {loading ? null : (
         <ScrollView showsVerticalScrollIndicator={false}>
-          <StatusBar
-            backgroundColor="transparent"
-            translucent={true}
-            barStyle="dark-content"
-          />
-          <Image
-            blurRadius={70}
-            source={backgroundGenerator(
-              location?.localtime,
-              current?.condition?.code,
-            )}
-            className="absolute w-full h-full"
-          />
-          <SafeAreaView className="flex flex-1">
             {/* search section */}
-            <View
-              className={`${
-                !showSearch ? 'flex flex-row justify-between' : ''
-              } mt-4`}>
-              {!showSearch ? (
-                <TouchableOpacity
-                  className="mx-4"
-                  onPress={() => navigation.toggleDrawer()}>
-                  <Ic_Bar color="white" />
-                </TouchableOpacity>
-              ) : null}
-              <View style={{height: '7%'}} className="mx-4  my-1 relative z-50">
+            <StatusBar
+              backgroundColor="transparent"
+              translucent={true}
+              barStyle="dark-content"
+            />
+            <View>
+              <ImageBackground
+                source={backgroundGenerator(
+                  location?.localtime,
+                  current?.condition?.code,
+                )}
+                resizeMode="cover"
+                style={{height: '100%', width: '100%'}}>
+                <SafeAreaView className="flex flex-1">
                 <View
-                  className="flex-row justify-end items-center rounded-full"
-                  style={{
-                    backgroundColor: showSearch
-                      ? theme.bgWhite(0.2)
-                      : 'transparent',
-                  }}>
-                  {showSearch ? (
-                    <TextInput
-                      onChangeText={handleTextDebounce}
-                      placeholder="Search city"
-                      placeholderTextColor={'lightgray'}
-                      className="pl-6 h-10 pb-1 flex-1 text-base text-white"
-                    />
+                  className={`${
+                    !showSearch ? 'flex flex-row justify-between' : ''
+                  } mt-4`}>
+                  {!showSearch ? (
+                    <TouchableOpacity
+                      className="mx-4"
+                      onPress={() => navigation.toggleDrawer()}>
+                      <Ic_Bar color="white" />
+                    </TouchableOpacity>
                   ) : null}
-                  <TouchableOpacity
-                    onPress={() => toggleSearch(!showSearch)}
-                    className="rounded-full p-3 m-1"
-                    style={{backgroundColor: theme.bgWhite(0.3)}}>
-                    {showSearch ? (
-                      <XMarkIcon size="25" color="white" />
-                    ) : (
-                      <MagnifyingGlassIcon size="25" color="white" />
-                    )}
-                  </TouchableOpacity>
-                </View>
-                {locations.length > 0 && showSearch ? (
-                  <View className="absolute w-full bg-gray-300 top-16 rounded-3xl ">
-                    {locations.map((loc, index) => {
-                      let showBorder = index + 1 != locations.length;
-                      let borderClass = showBorder
-                        ? ' border-b-2 border-b-gray-400'
-                        : '';
-                      return (
-                        <TouchableOpacity
-                          key={index}
-                          onPress={() => handleLocation(loc)}
-                          className={
-                            'flex-row items-center border-0 p-3 px-4 mb-1 ' +
-                            borderClass
-                          }>
-                          <MapPinIcon size="20" color="gray" />
-                          <Text className="text-black text-lg ml-2">
-                            {loc?.name}, {loc?.country}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                ) : null}
-              </View>
-            </View>
-
-            {/* forecast section */}
-            <View className="mx-4 flex justify-around flex-1 mb-8">
-              {/* location */}
-              <Text className="text-white text-center text-2xl font-bold mb-8">
-                {location?.name},
-                <Text className="text-lg font-semibold text-gray-300">
-                  {` ${location?.country}`}
-                </Text>
-              </Text>
-
-              {/* degree celcius */}
-              <View className="space-y-2 mt-4">
-                <Text className="text-center font-bold text-white text-6xl ml-5">
-                  {current?.temp_c}&#176;
-                </Text>
-                <Text className="text-center text-white text-xl tracking-widest">
-                  {current?.condition?.text}
-                </Text>
-              </View>
-            </View>
-            {/* forecast for next hours */}
-            <View
-              className="flex flex-row justify-center items-center rounded-xl py-3 space-y-1 mx-4 max-w-screen-sm mt-2"
-              style={{backgroundColor: theme.bgWhite(0.15)}}>
-              <ScrollView
-                horizontal
-                contentContainerStyle={{paddingHorizontal: 5}}
-                showsHorizontalScrollIndicator={false}>
-                {weather.forecast?.forecastday[0]?.hour?.map((item, index) => {
-                  let hour = item.time.substr(11, 5);
-                  return (
-                    <View className="mr-6" key={index}>
-                      <Text className="text-white text-base font-semibold text-center">
-                        {hour}
-                      </Text>
-                      <Image
-                        // source={{uri: 'https:'+item?.day?.condition?.icon}}
-                        source={{uri: 'https:' + item?.condition?.icon}}
-                        className="w-11 h-11"
-                      />
-                      <Text className="text-white text-xl font-medium text-center">
-                        {item?.temp_c}&#176;
-                      </Text>
+                  <View
+                    style={{height: '7%'}}
+                    className="mx-4  my-1 relative z-50">
+                    <View
+                      className="flex-row justify-end items-center rounded-full"
+                      style={{
+                        backgroundColor: showSearch
+                          ? theme.bgWhite(0.2)
+                          : 'transparent',
+                      }}>
+                      {showSearch ? (
+                        <TextInput
+                          onChangeText={handleTextDebounce}
+                          placeholder="Search city"
+                          placeholderTextColor={'lightgray'}
+                          className="pl-6 h-10 pb-1 flex-1 text-base text-white"
+                        />
+                      ) : null}
+                      <TouchableOpacity
+                        onPress={() => toggleSearch(!showSearch)}
+                        className="rounded-full p-3 m-1"
+                        style={{backgroundColor: theme.bgWhite(0.3)}}>
+                        {showSearch ? (
+                          <XMarkIcon size="25" color="white" />
+                        ) : (
+                          <MagnifyingGlassIcon size="25" color="white" />
+                        )}
+                      </TouchableOpacity>
                     </View>
-                  );
-                })}
-              </ScrollView>
+                    {locations.length > 0 && showSearch ? (
+                      <View className="absolute w-full bg-gray-300 top-16 rounded-3xl ">
+                        {locations.map((loc, index) => {
+                          let showBorder = index + 1 != locations.length;
+                          let borderClass = showBorder
+                            ? ' border-b-2 border-b-gray-400'
+                            : '';
+                          return (
+                            <TouchableOpacity
+                              key={index}
+                              onPress={() => handleLocation(loc)}
+                              className={
+                                'flex-row items-center border-0 p-3 px-4 mb-1 ' +
+                                borderClass
+                              }>
+                              <MapPinIcon size="20" color="gray" />
+                              <Text className="text-black text-lg ml-2">
+                                {loc?.name}, {loc?.country}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
+                    ) : null}
+                  </View>
+                </View>
+
+                {/* forecast section */}
+                <View className="mx-4 flex justify-around flex-1 mb-8">
+                  {/* location */}
+                  <Text className="text-white text-center text-2xl font-bold mb-8">
+                    {location?.name},
+                    <Text className="text-lg font-semibold text-gray-300">
+                      {` ${location?.country}`}
+                    </Text>
+                  </Text>
+
+                  {/* degree celcius */}
+                  <View className="space-y-2 mt-4">
+                    <Text className="text-center font-bold text-white text-6xl ml-5">
+                      {current?.temp_c}&#176;
+                    </Text>
+                    <Text className="text-center text-white text-xl tracking-widest">
+                      {current?.condition?.text}
+                    </Text>
+                  </View>
+                </View>
+                {/* forecast for next hours */}
+                <View
+                  className="flex flex-row justify-center items-center rounded-xl py-3 space-y-1 mx-4 max-w-screen-sm mt-2"
+                  style={{backgroundColor: theme.bgWhite(0.15)}}>
+                  <ScrollView
+                    horizontal
+                    contentContainerStyle={{paddingHorizontal: 5}}
+                    showsHorizontalScrollIndicator={false}>
+                    {weather.forecast?.forecastday[0]?.hour?.map(
+                      (item, index) => {
+                        let hour = item.time.substr(11, 5);
+                        return (
+                          <View className="mr-6" key={index}>
+                            <Text className="text-white text-base font-semibold text-center">
+                              {hour}
+                            </Text>
+                            <Image
+                              // source={{uri: 'https:'+item?.day?.condition?.icon}}
+                              source={{uri: 'https:' + item?.condition?.icon}}
+                              className="w-11 h-11"
+                            />
+                            <Text className="text-white text-xl font-medium text-center">
+                              {item?.temp_c}&#176;
+                            </Text>
+                          </View>
+                        );
+                      },
+                    )}
+                  </ScrollView>
+                </View>
+                {/* WeatherAdvice */}
+                <WeatherAdvice code={current?.condition?.code} />
+                {/* forecast for next days */}
+                <View className="mb-8 space-y-3">
+                  <View className="flex-row items-center justify-items-center mx-5 space-x-2">
+                    <CalendarDaysIcon size="22" color="white" />
+                    <Text className="text-white text-base mt-2 mx-auto my-auto">{`Dự báo ${numberForecastDay} ngày`}</Text>
+                  </View>
+                  <View
+                    className={
+                      'flex  rounded-xl py-4 space-y-1 mx-4 max-w-screen-sm'
+                    }
+                    style={{backgroundColor: '000000'}}>
+                    {weather?.forecast?.forecastday.map((item, index) => (
+                      <FormForecastDay key={index} item={item} />
+                    ))}
+                  </View>
+                </View>
+                {/* air quality */}
+                <CardAir data={current?.air_quality} />
+                {/* detailWeather */}
+                <View className="p-4">
+                  <Text className="text-white text-sm font-medium text-center text-left">
+                    Chi tiết thời tiết
+                  </Text>
+                  <View className="flex flex-row flex-wrap justify-between">
+                    <CardDetail
+                      Icon={Ic_Temperature}
+                      title={'Nhiệt độ cảm nhận'}
+                      info={current?.feelslike_c}
+                      unit={'°C'}
+                    />
+                    <CardDetail
+                      Icon={Ic_Wind}
+                      title={windType(current?.wind_dir)}
+                      info={current?.wind_kph}
+                      unit={'km/h'}
+                    />
+                    <CardDetail
+                      Icon={Ic_Rain}
+                      title={'Độ ẩm'}
+                      info={current?.humidity}
+                      unit={'%'}
+                    />
+                    <CardDetail
+                      Icon={Ic_Eye}
+                      title={'Tầm nhìn'}
+                      info={current?.vis_km}
+                      unit={'km'}
+                    />
+                    <CardDetail
+                      Icon={Ic_Uv}
+                      title={'UV'}
+                      info={current?.uv}
+                      unit=""
+                    />
+                    <CardDetail
+                      Icon={Ic_Pressure}
+                      title={'Áp suất không khí'}
+                      info={current?.pressure_mb}
+                      unit="hPa"
+                    />
+                  </View>
+                </View>
+                <Text className="mx-auto text-white opacity-60 mt-4 mb-2">
+                  Thông tin được cung cấp bởi{' '}
+                  <Text
+                    style={{textDecorationLine: 'underline'}}
+                    onPress={() =>
+                      Linking.openURL('https://www.weatherapi.com/')
+                    }>
+                    WeatherApi
+                  </Text>
+                </Text>
+                </SafeAreaView>
+              </ImageBackground>
             </View>
-            {/* WeatherAdvice */}
-            <WeatherAdvice code={current?.condition?.code} />
-            {/* forecast for next days */}
-            <View className="mb-8 space-y-3">
-              <View className="flex-row items-center justify-items-center mx-5 space-x-2">
-                <CalendarDaysIcon size="22" color="white" />
-                <Text className="text-white text-base mt-2 mx-auto my-auto">{`Dự báo ${numberForecastDay} ngày`}</Text>
-              </View>
-              <View
-                className={
-                  'flex  rounded-xl py-4 space-y-1 mx-4 max-w-screen-sm'
-                }
-                style={{backgroundColor: '000000'}}>
-                {weather?.forecast?.forecastday.map((item, index) => (
-                  <FormForecastDay key={index} item={item} />
-                ))}
-              </View>
-            </View>
-            {/* air quality */}
-            <CardAir data={current?.air_quality} />
-            {/* detailWeather */}
-            <View className="p-4">
-              <Text className="text-white text-sm font-medium text-center text-left">
-                Chi tiết thời tiết
-              </Text>
-              <View className="flex flex-row flex-wrap justify-between">
-                <CardDetail
-                  Icon={Ic_Temperature}
-                  title={'Nhiệt độ cảm nhận'}
-                  info={current?.feelslike_c}
-                  unit={'°C'}
-                />
-                <CardDetail
-                  Icon={Ic_Wind}
-                  title={windType(current?.wind_dir)}
-                  info={current?.wind_kph}
-                  unit={'km/h'}
-                />
-                <CardDetail
-                  Icon={Ic_Rain}
-                  title={'Độ ẩm'}
-                  info={current?.humidity}
-                  unit={'%'}
-                />
-                <CardDetail
-                  Icon={Ic_Eye}
-                  title={'Tầm nhìn'}
-                  info={current?.vis_km}
-                  unit={'km'}
-                />
-                <CardDetail
-                  Icon={Ic_Uv}
-                  title={'UV'}
-                  info={current?.uv}
-                  unit=""
-                />
-                <CardDetail
-                  Icon={Ic_Pressure}
-                  title={'Áp suất không khí'}
-                  info={current?.pressure_mb}
-                  unit="hPa"
-                />
-              </View>
-            </View>
-            <Text className="mx-auto text-white opacity-60 mt-4 mb-2">
-              Thông tin được cung cấp bởi{' '}
-              <Text
-                style={{textDecorationLine: 'underline'}}
-                onPress={() => Linking.openURL('https://www.weatherapi.com/')}>
-                WeatherApi
-              </Text>
-            </Text>
-          </SafeAreaView>
+         
         </ScrollView>
       )}
     </>

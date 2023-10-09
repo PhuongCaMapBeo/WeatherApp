@@ -17,6 +17,7 @@ import {
 } from '../components/Icons';
 import {List} from 'react-native-paper';
 import * as React from 'react';
+import SwitchSelector from 'react-native-switch-selector';
 
 function SettingScreen({navigation}) {
   const [expanded, setExpanded] = React.useState(true);
@@ -41,9 +42,27 @@ function SettingScreen({navigation}) {
         </View>
         <View className="my-2">
           <Text className="text-xl text-black">Đơn vị</Text>
-          <View className="bg-white rounded-lg my-2">
+          <View className="bg-white rounded-lg my-2 ">
             <View className="mx-2 my-2">
               <Text className="text-black text-lg pl-2">Nhiệt độ</Text>
+              <View className="max-w-[100px]">
+              <SwitchSelector
+                initial={0}
+                valuePadding={0}
+                // onPress={value => this.setState({ gender: value })}
+                textColor={'#0893c9'} //'#7a44cf'
+                selectedColor={'#fff'}
+                buttonColor={'#0893c9'}
+                borderColor={'#0893c9'}
+                hasPadding
+                options={[
+                  {label: 'F', value: 'f'},
+                  {label: 'C', value: 'c'},
+                ]}
+                testID="gender-switch-selector"
+                accessibilityLabel="gender-switch-selector"
+              />
+              </View>
             </View>
             <View className="mx-2 my-2">
               <Text className="text-black text-lg pl-2">Gió</Text>
