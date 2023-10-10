@@ -34,7 +34,7 @@ import {
   Ic_Pressure,
   Ic_Bar,
 } from '../components/Icons/index';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Progress from 'react-native-progress';
 
 export default function HomeScreen({navigation}) {
   const [showSearch, toggleSearch] = useState(false);
@@ -52,24 +52,24 @@ export default function HomeScreen({navigation}) {
       });
   };
 
-  const handleLocation = async (loc) => {
+  const handleLocation = async loc => {
     setLoading(true);
     toggleSearch(false);
     setLocations([]);
     let historyLoc = JSON.parse(await getData('HistoryLoc')) || [];
-    if(historyLoc){
-      if(historyLoc.length < 4){
-      historyLoc.push(loc.name);
-      storeData('HistoryLoc',JSON.stringify(historyLoc));
-      console.log(1);
-    }else{
-      historyLoc.shift();
-      console.log(historyLoc);
-      historyLoc.push(loc.name);
-      storeData('HistoryLoc',JSON.stringify(historyLoc));
-    }
-    }else{
-      storeData('HistoryLoc',JSON.stringify([loc.name]));
+    if (historyLoc) {
+      if (historyLoc.length < 4) {
+        historyLoc.push(loc.name);
+        storeData('HistoryLoc', JSON.stringify(historyLoc));
+        console.log(1);
+      } else {
+        historyLoc.shift();
+        console.log(historyLoc);
+        historyLoc.push(loc.name);
+        storeData('HistoryLoc', JSON.stringify(historyLoc));
+      }
+    } else {
+      storeData('HistoryLoc', JSON.stringify([loc.name]));
       console.log(2);
     }
     console.log(loc.name);
@@ -133,9 +133,7 @@ export default function HomeScreen({navigation}) {
 
   const geoLocation = () => {
     Geolocation.getCurrentPosition(
-      position => {
-      
-      },
+      position => {},
       error => {
         // See error code charts below.
         console.log(error.code, error.message);
@@ -145,27 +143,42 @@ export default function HomeScreen({navigation}) {
   };
   geoLocation();
 
-
-
   return (
     <>
-      {loading ? null : (
-        <ScrollView showsVerticalScrollIndicator={false}>
-            {/* search section */}
-            <StatusBar
-              backgroundColor="transparent"
-              translucent={true}
-              barStyle="dark-content"
+      {loading ? (
+        <View className="w-screen h-screen">
+          <ImageBackground
+            source={require('../assets/images/day_night.jpg')}
+            resizeMode="cover"
+            style={{height: '100%', width: '100%'}}>
+            {/* <ActivityIndicator animating={true} color={"#34c3eb"}  size={'number'}  className="mx-auto my-auto"/> */}
+            <Progress.Bar
+              progress={0.3}
+              width={300}
+              height={8}
+              indeterminate={true}
+              className="mx-auto my-auto"
+              color="#34c0eb"
             />
-            <View>
-              <ImageBackground
-                source={backgroundGenerator(
-                  location?.localtime,
-                  current?.condition?.code,
-                )}
-                resizeMode="cover"
-                style={{height: '100%', width: '100%'}}>
-                <SafeAreaView className="flex flex-1">
+          </ImageBackground>
+        </View>
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* search section */}
+          <StatusBar
+            backgroundColor="transparent"
+            translucent={true}
+            barStyle="dark-content"
+          />
+          <View>
+            <ImageBackground
+              source={backgroundGenerator(
+                location?.localtime,
+                current?.condition?.code,
+              )}
+              resizeMode="cover"
+              style={{height: '100%', width: '100%'}}>
+              <SafeAreaView className="flex flex-1">
                 <View
                   className={`${
                     !showSearch ? 'flex flex-row justify-between' : ''
@@ -357,10 +370,9 @@ export default function HomeScreen({navigation}) {
                     WeatherApi
                   </Text>
                 </Text>
-                </SafeAreaView>
-              </ImageBackground>
-            </View>
-         
+              </SafeAreaView>
+            </ImageBackground>
+          </View>
         </ScrollView>
       )}
     </>

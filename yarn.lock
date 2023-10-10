@@ -6512,6 +6512,11 @@ react-is@^17.0.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
+react-native-dialog@^9.3.0:
+  version "9.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-dialog/-/react-native-dialog-9.3.0.tgz#9d745cc51653a1e2ae08076b46f11d99723c47f6"
+  integrity sha512-JEOJY/0AzTM9grIl0BL8o/IJPIJru7k5MPj9POTE9RRezUEtgn0YSvCpTlBtG0obWgOdzg2otMz1OQvMXS0wMQ==
+
 react-native-dropdown-select-list@^2.0.5:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/react-native-dropdown-select-list/-/react-native-dropdown-select-list-2.0.5.tgz#3626b2bf9b9c5e157b02f60cf36174cde7550056"
@@ -6563,6 +6568,18 @@ react-native-permissions@^3.9.1:
   version "3.9.1"
   resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-3.9.1.tgz#15f1039b3e6d9b4250f715db642ce0a38e0ae101"
   integrity sha512-9Pvq7d8hb75+DVzdU5qrwTNmlULWqCugusCxD4Hce0ztbQhInS0tdgp/qt1neWLS0Xg6WX+emr9dM4BpKdk87w==
+
+react-native-popup-confirm-toast@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/react-native-popup-confirm-toast/-/react-native-popup-confirm-toast-2.3.2.tgz#68273e94f8a955fee75a9c87dc0bb08bea38f2de"
+  integrity sha512-8tl171R4wHQLUrQxrYQUZtQLLM8uMD9uIDkSQUmDjNqBVljfmVDxUvpILs7rkORkbX+1wxNlYdwR7EFESaJ1SA==
+
+react-native-progress@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-progress/-/react-native-progress-5.0.0.tgz#f5ac6ceaeee27f184c660b00f29419e82a9d0ab0"
+  integrity sha512-KjnGIt3r9i5Kn2biOD9fXLJocf0bwxPRxOyAgXEnZTJQU2O+HyzgGFRCbM5h3izm9kKIkSc1txh8aGmMafCD9A==
+  dependencies:
+    prop-types "^15.7.2"
 
 react-native-reanimated@^3.5.3:
   version "3.5.4"

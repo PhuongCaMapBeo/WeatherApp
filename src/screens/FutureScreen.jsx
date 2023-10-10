@@ -14,68 +14,97 @@ import {MagnifyingGlassIcon, XMarkIcon} from 'react-native-heroicons/outline';
 import {CalendarDaysIcon, MapPinIcon} from 'react-native-heroicons/solid';
 import {debounce} from 'lodash';
 import {theme} from '../theme';
-import {fetchLocations, fetchWeatherForecast} from '../api/weather';
+import {fetchWeatherFuture} from '../api/weather';
 import {getData, storeData} from '../utils/asyncStorage';
 import {Ic_Rain, Ic_Uv, Ic_Bar} from '../components/Icons';
 import {backgroundGenerator} from '../utils/funcSupport';
+import Dialog from "react-native-dialog";
+import * as Progress from 'react-native-progress';
+import {Popup} from 'react-native-popup-confirm-toast'
+
 
 export default function FutureScreen({navigation}) {
   const [showSearch, toggleSearch] = useState(false);
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState(false);
   const [weather, setWeather] = useState({});
+  const [loc, setLoc] = useState("");
+  const [time,setTime] = useState("");
 
   const handleSearch = search => {
-    // console.log('value: ',search);
-    if (search && search.length > 2)
-      fetchLocations({cityName: search}).then(data => {
-        // console.log('got locations: ',data);
-        setLocations(data);
-      });
+      setLoading(true);
+      fetchWeatherData();
+      toggleSearch(false);
+      setLoc("");
+      setTime("");
   };
-
-  const handleLocation = loc => {
-    setLoading(true);
+  const handleCancel =()=>{
     toggleSearch(false);
-    setLocations([]);
-    fetchWeatherForecast({
-      cityName: loc.name,
-      days: '7',
-    }).then(data => {
-      setLoading(false);
-      setWeather(data);
-      storeData('city', loc.name);
-    });
-  };
+    setLoc("");
+    setTime("");
+  }
 
   useEffect(() => {
-    fetchMyWeatherData();
-  }, []);
-
-  const fetchMyWeatherData = async () => {
-    let myCity = await getData('city');
-    let cityName = 'Islamabad';
-    if (myCity) {
-      cityName = myCity;
+    if (err) {
+      Popup.show({
+        type: 'danger',
+        title: 'Thất bại!',
+        textBody: 'Thời gian phải ở định dạng yyyy-MM-dd và trong khoảng từ 14 ngày đến 300 ngày kể từ hôm nay trong tương lai. ',
+        buttonText: 'OK',
+        callback: () => {Popup.hide(), setErr(false)}
+      });
     }
-    fetchWeatherForecast({
-      cityName,
-      days: '7',
-    }).then(data => {
-      // console.log('got data: ',data.forecast.forecastday);
-      setWeather(data);
-      setLoading(false);
-    });
-  };
+  }, [err]);
+ useEffect(() => {
+  setLoading(true)
+  fetchWeatherData();
+}, []);
 
-  const handleTextDebounce = useCallback(debounce(handleSearch, 1200), []);
+ const fetchWeatherData =async () => {
+  let cityName = 'Ha Noi';
+  let date = '2024/01/01'
+  if(loc.length != 0 ){
+    cityName = loc,
+    date = time
+  }
+  fetchWeatherFuture({
+    cityName: cityName,
+    date: date
+  })
+    .then(data => {
+      setLoading(false);
+      setErr(false)
+      if(JSON.stringify(data) === '{}'){
+        setErr(true);
+      }else{
+        setWeather(data);
+      }
+     
+    })
+    .catch(error => {
+      console.log("callapi",error);
+      return error;
+    });
+};
 
   const {location, current} = weather;
-  console.log(location);
+  console.log(err);
 
   return (
-    <View className="flex-1">
+    <ScrollView className="flex-1">
       <StatusBar style="light" />
+      { loading ? (
+      <View className="w-screen h-screen"> 
+       <ImageBackground
+       source={require('../assets/images/day_night.jpg')}
+       resizeMode="cover"
+       style={{height: '100%', width: '100%'}}>
+      {/* <ActivityIndicator animating={true} color={"#34c3eb"}  size={'number'}  className="mx-auto my-auto"/> */}
+      <Progress.Bar progress={0.3} width={300} height={8} indeterminate={true} className="mx-auto my-auto" color="#34c0eb"/>
+      </ImageBackground>
+      </View>
+      ) : (
       <ImageBackground
         source={require('../assets/images/morning.jpg')}
         resizeMode="cover"
@@ -99,42 +128,52 @@ export default function FutureScreen({navigation}) {
               </TouchableOpacity>
             </View>
 
+            <View >
+              <Dialog.Container visible={showSearch}>
+                <Dialog.Input label="Địa điểm"  onChangeText={(e)=>setLoc(e)} value={loc}/>
+                <Dialog.Input label="Thời gian" onChangeText={(e)=>setTime(e)} value={time} />
+                <Dialog.Button label="Hủy bỏ" onPress={handleCancel}  />
+                <Dialog.Button label="Tìm kiếm" onPress={handleSearch} />
+              </Dialog.Container>
+            </View>
+
+
             {/* forecast section */}
             <View className="mx-4 flex justify-around flex-1 mb-2">
               {/* location */}
-              <Text className="text-white text-center text-2xl font-bold">
+              <Text className="text-white text-center text-3xl font-bold">
                 {location?.name},
                 <Text className="text-lg font-semibold text-gray-300">
-                  {location.country}
+                  {location?.country}
                 </Text>
               </Text>
               {/* weather icon */}
               <View className="flex-row justify-center">
                 <Image
-                  source={{uri: 'https:' + current?.condition?.icon}}
+                  source={{uri: 'https:' + weather?.forecast?.forecastday[0]?.day?.condition?.icon}}
                   className="w-52 h-52"
                 />
               </View>
               {/* degree celcius */}
               <View className="space-y-2">
                 <Text className="text-center font-bold text-white text-6xl ml-5">
-                  {current?.temp_c}&#176;
+                  {weather?.forecast?.forecastday[0]?.day?.avgtemp_c}&#176;
                 </Text>
                 <Text className="text-center text-white text-xl tracking-widest">
-                  {current?.condition?.text}
+                  {weather?.forecast?.forecastday[0]?.day?.condition?.text}
                 </Text>
               </View>
 
               {/* other stats */}
-              <View className="flex-row justify-between mx-4">
+              <View className="flex-row justify-between mx-4 mt-4">
                 <View className="flex-row space-x-2 items-center">
                   <Text className="text-white font-semibold text-base">
-                    {current?.wind_kph}km
+                    {weather?.forecast?.forecastday[0]?.day?.maxwind_kph}km
                   </Text>
                 </View>
                 <View className="flex-row space-x-2 items-center">
                   <Text className="text-white font-semibold text-base">
-                    {current?.humidity}%
+                    {weather?.forecast?.forecastday[0]?.day?.avghumidity}%
                   </Text>
                 </View>
                 <View className="flex-row space-x-2 items-center">
@@ -156,24 +195,20 @@ export default function FutureScreen({navigation}) {
                 horizontal
                 contentContainerStyle={{paddingHorizontal: 15}}
                 showsHorizontalScrollIndicator={false}>
-                {weather?.forecast?.forecastday?.map((item, index) => {
-                  const date = new Date(item.date);
-                  const options = {weekday: 'long'};
-                  let dayName = date.toLocaleDateString('en-US', options);
-                  dayName = dayName.split(',')[0];
-
+                {weather.forecast?.forecastday[0]?.hour?.map((item, index) => {
+                  let hour = item.time.substr(11, 5);
                   return (
                     <View
                       key={index}
                       className="flex justify-center items-center w-24 rounded-3xl py-3 space-y-1 mr-4"
                       style={{backgroundColor: theme.bgWhite(0.15)}}>
                       <Image
-                        source={{uri: 'https:' + item?.day?.condition?.icon}}
+                        source={{uri: 'https:' + item?.condition?.icon}}
                         className="w-11 h-11"
                       />
-                      <Text className="text-white">{dayName}</Text>
+                      <Text className="text-white">{hour}</Text>
                       <Text className="text-white text-xl font-semibold">
-                        {item?.day?.avgtemp_c}&#176;
+                        {item?.temp_c}&#176;
                       </Text>
                     </View>
                   );
@@ -182,7 +217,7 @@ export default function FutureScreen({navigation}) {
             </View>
           </SafeAreaView>
         )}
-        <Text className="mx-auto text-white opacity-60 mt-8 mb-2">
+        <Text className="mx-auto text-white opacity-60 mt-10 mb-2">
           Thông tin được cung cấp bởi{' '}
           <Text
             style={{textDecorationLine: 'underline'}}
@@ -190,7 +225,8 @@ export default function FutureScreen({navigation}) {
             WeatherApi
           </Text>
         </Text>
-      </ImageBackground>
-    </View>
+      </ImageBackground>)
+    }
+    </ScrollView>
   );
 }
