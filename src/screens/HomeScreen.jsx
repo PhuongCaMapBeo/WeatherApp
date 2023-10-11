@@ -35,6 +35,7 @@ import {
   Ic_Bar,
 } from '../components/Icons/index';
 import * as Progress from 'react-native-progress';
+import { useSelector } from 'react-redux';
 
 export default function HomeScreen({navigation}) {
   const [showSearch, toggleSearch] = useState(false);
@@ -42,6 +43,8 @@ export default function HomeScreen({navigation}) {
   const [loading, setLoading] = useState(true);
   const [weather, setWeather] = useState({});
   const [numberForecastDay, setNumberForecastDay] = useState('7');
+  const numberOfDay = useSelector((state) => state.set.numberOfDay);
+  useEffect(()=> setNumberForecastDay(numberOfDay),[numberOfDay]);
 
   const handleSearch = search => {
     // console.log('value: ',search);
@@ -75,7 +78,7 @@ export default function HomeScreen({navigation}) {
     console.log(loc.name);
     fetchWeatherForecast({
       cityName: loc.name,
-      days: '7',
+      days: numberForecastDay,
     }).then(data => {
       setLoading(false);
       setWeather(data);

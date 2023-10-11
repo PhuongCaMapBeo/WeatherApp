@@ -18,10 +18,18 @@ import {
 import {List} from 'react-native-paper';
 import * as React from 'react';
 import SwitchSelector from 'react-native-switch-selector';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSlice } from '../redux/setSlice';
 
 function SettingScreen({navigation}) {
   const [expanded, setExpanded] = React.useState(true);
   const handlePress = () => setExpanded(!expanded);
+  const dispatch = useDispatch();
+  const handleItemPress = (itemValue)=>{
+      dispatch(setSlice.actions.setNumberOfDay(itemValue));
+  }
+ 
+  
   return (
     <SafeAreaView className="bg-neutral-300">
       <StatusBar
@@ -91,8 +99,8 @@ function SettingScreen({navigation}) {
                 left={props => <Ic_Date />}
                 expanded={expanded}
                 onPress={handlePress}>
-                <List.Item title="First item" />
-                <List.Item title="Second item" />
+                <List.Item title="7 ngày" onPress ={()=> handleItemPress(7)}/>
+                <List.Item title="3 ngày" onPress ={()=> handleItemPress(3)}/>
               </List.Accordion>
               <List.Accordion
                 title="Về chúng tôi"
