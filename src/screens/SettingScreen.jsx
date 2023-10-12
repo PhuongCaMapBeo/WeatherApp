@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setSlice } from '../redux/setSlice';
 
 function SettingScreen({navigation}) {
-  const [expanded, setExpanded] = React.useState(true);
+  const [expanded, setExpanded] = React.useState(false);
   const handlePress = () => setExpanded(!expanded);
   const dispatch = useDispatch();
   const handleItemPress = (itemValue)=>{
@@ -48,12 +48,12 @@ function SettingScreen({navigation}) {
             Cài đặt
           </Text>
         </View>
-        <View className="my-2">
+        <View className="my-1">
           <Text className="text-xl text-black">Đơn vị</Text>
           <View className="bg-white rounded-lg my-2 ">
-            <View className="mx-2 my-2">
-              <Text className="text-black text-lg pl-2">Nhiệt độ</Text>
-              <View className="max-w-[100px]">
+            <View className="mx-2 my-2 flex flex-row">
+              <Text className="text-black text-lg pl-2 my-auto">Nhiệt độ</Text>
+              <TouchableOpacity className="max-w-[100px] min-w-[80px] ml-[200px]">
               <SwitchSelector
                 initial={0}
                 valuePadding={0}
@@ -70,14 +70,32 @@ function SettingScreen({navigation}) {
                 testID="gender-switch-selector"
                 accessibilityLabel="gender-switch-selector"
               />
-              </View>
+              </TouchableOpacity>
             </View>
-            <View className="mx-2 my-2">
-              <Text className="text-black text-lg pl-2">Gió</Text>
+            <View className="mx-2 my-2 flex flex-row">
+              <Text className="text-black text-lg pl-2 my-auto">Gió</Text>
+              <TouchableOpacity className="max-w-[100px] min-w-[100px] ml-[220px]">
+              <SwitchSelector
+                initial={0}
+                valuePadding={0}
+                onPress={value => dispatch(setSlice.actions.setWind(value))}
+                textColor={'#0893c9'} //'#7a44cf'
+                selectedColor={'#fff'}
+                buttonColor={'#0893c9'}
+                borderColor={'#0893c9'}
+                hasPadding
+                options={[
+                  {label: 'km/h', value: 'k'},
+                  {label: 'm/ph', value: 'm'},
+                ]}
+                testID="gender-switch-selector"
+                accessibilityLabel="gender-switch-selector"
+              />
+              </TouchableOpacity>
             </View>
           </View>
         </View>
-        <View className="my-2">
+        <View className="my-1">
           <Text className="text-xl text-black">Ứng dụng</Text>
           <View className="bg-white rounded-lg my-2">
             <List.Section>
@@ -93,14 +111,20 @@ function SettingScreen({navigation}) {
 
               <List.Accordion
                 title="Số ngày dự báo"
-                style={{paddingLeft: 12, paddingTop: 1, paddingBottom: 1}}
+                style={{paddingLeft: 12, paddingTop: 1, paddingBottom: 1, backgroundColor:expanded?"#ccc":"white"}}
                 titleStyle={{fontSize: 18, marginTop: -8}}
                 right={props => <Ic_ChevronDown />}
                 left={props => <Ic_Date />}
                 expanded={expanded}
-                onPress={handlePress}>
-                <List.Item title="7 ngày" onPress ={()=> handleItemPress(7)}/>
-                <List.Item title="3 ngày" onPress ={()=> handleItemPress(3)}/>
+                onPress={handlePress}
+                theme={{
+                  colors: {
+                    primary: expanded ? '#9ecbe6' : '#32a852', // Màu nhãn và đường viền
+                  }
+                  }}
+                >
+                <List.Item title="7 ngày" onPress ={()=> handleItemPress(7)} className={"border-b-[0.5px] border-neutral-300 justify-between flex pr-0"}/>
+                <List.Item title="3 ngày" onPress ={()=> handleItemPress(3)} className={"border-b-[0.5px] border-neutral-300 justify-between flex pr-0"}/>
               </List.Accordion>
               <List.Accordion
                 title="Về chúng tôi"

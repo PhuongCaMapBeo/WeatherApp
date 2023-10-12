@@ -4,7 +4,7 @@ export const setSlice = createSlice({
   name: "set",
   initialState:{
     temp: "C",
-    wind: "Km",
+    wind: "k",
     language : "vn",
     numberOfDay: 7,
   },

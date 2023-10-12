@@ -42,10 +42,17 @@ export default function HomeScreen({navigation}) {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [weather, setWeather] = useState({});
-  const [numberForecastDay, setNumberForecastDay] = useState('7');
-  const numberOfDay = useSelector((state) => state.set.numberOfDay);
-  useEffect(()=> setNumberForecastDay(numberOfDay),[numberOfDay]);
 
+  const numberOfDay = useSelector((state) => state.set.numberOfDay);
+  const [numberForecastDay, setNumberForecastDay] = useState('7');
+  const wind = useSelector((state) => state.set.wind);
+
+  const [unitWind,setUnitWind] = useState(wind);
+ 
+  useEffect(()=> setNumberForecastDay(numberOfDay),[numberOfDay]);
+  useEffect(()=>setUnitWind(wind),[wind])
+
+ 
   const handleSearch = search => {
     // console.log('value: ',search);
     if (search && search.length > 2)
@@ -334,8 +341,8 @@ export default function HomeScreen({navigation}) {
                     <CardDetail
                       Icon={Ic_Wind}
                       title={windType(current?.wind_dir)}
-                      info={current?.wind_kph}
-                      unit={'km/h'}
+                      info={`${unitWind=== 'k'? current?.wind_kph : current?.wind_mph}`}
+                      unit={`${unitWind=== 'k'? 'km/h': 'm/ph'}`}
                     />
                     <CardDetail
                       Icon={Ic_Rain}

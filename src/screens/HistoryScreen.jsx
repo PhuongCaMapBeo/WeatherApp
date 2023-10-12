@@ -19,36 +19,32 @@ import {ScrollView} from 'react-native-gesture-handler';
 import * as Progress from 'react-native-progress';
 
 function HistoryScreen({navigation}) {
-  const [dataLoc, setDataLoc] = useState([]);
   const [loading, setLoading] = useState(false);
   const [weather, setWeather] = useState([]);
-  let historyLocData;
+
   useEffect(() => {
     const fetchData = async () => {
-      console.log(loading);
-      setDataLoc(JSON.parse(await getData('HistoryLoc'))); // get từ localstorage
-
-      setWeather([]);
-      if (dataLoc.length !== 0) {
-        setLoading(false);
-        console.log('1');
-        dataLoc.map(loc => {
-          axios
-            .get(
-              `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${loc}&days=${1}&aqi=yes&alerts=no&lang=vi`,
-            )
-            .then(res => {
-              console.log(res.data.location);
-              setWeather(weather => [...weather, res.data]);
-            });
-        });
-      } else {
-        setLoading(true);
+      setLoading(true);
+      try {
+      const data=await getData('HistoryLoc')
+    // get từ localstorage
+      if (data.length !== 0) {
+        let dataApi=[]
+        for(loc of data){
+         const res= await axios.get(`https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${loc}&days=${1}&aqi=yes&alerts=no&lang=vi`)
+         dataApi.push(res.data)
+        }
+        setWeather(dataApi)
+        setLoading(false)
+      } 
+      } catch (error) {
+        console.log(error)
+        setLoading(false)
       }
     };
     fetchData();
-    console.log(dataLoc);
-  }, [loading]);
+  }, []);
+  console.log(weather)
 
   return (
     <>
