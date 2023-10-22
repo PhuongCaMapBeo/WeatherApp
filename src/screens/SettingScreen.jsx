@@ -99,15 +99,6 @@ function SettingScreen({navigation}) {
           <Text className="text-xl text-black">Ứng dụng</Text>
           <View className="bg-white rounded-lg my-2">
             <List.Section>
-              <List.Accordion
-                title="Ngôn ngữ"
-                style={{paddingLeft: 12, paddingTop: 1, paddingBottom: 1}}
-                titleStyle={{fontSize: 18, marginTop: -8}}
-                left={props => <Ic_Language />}
-                right={props => <Ic_ChevronDown />}>
-                <List.Item title="VietNamese" />
-                <List.Item title="English" />
-              </List.Accordion>
 
               <List.Accordion
                 title="Số ngày dự báo"
