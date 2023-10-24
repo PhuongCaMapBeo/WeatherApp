@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit"
 export const setSlice = createSlice({
   name: "set",
   initialState:{
-    temp: "C",
+    temp: "c",
     wind: "k",
     language : "vn",
     numberOfDay: 7,

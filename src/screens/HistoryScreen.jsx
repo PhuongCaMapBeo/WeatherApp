@@ -17,16 +17,21 @@ import {apiKey} from '../constrants';
 import {backgroundGenerator} from '../utils/funcSupport';
 import {ScrollView} from 'react-native-gesture-handler';
 import * as Progress from 'react-native-progress';
+import { useSelector } from 'react-redux';
 
 function HistoryScreen({navigation}) {
   const [loading, setLoading] = useState(false);
   const [weather, setWeather] = useState([]);
 
+  const search = useSelector(state => state.search.search);
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-      const data=await getData('HistoryLoc')
+      let data=await getData('HistoryLoc');
+      data = data.reverse();
+
     // get từ localstorage
       if (data.length !== 0) {
         let dataApi=[]
@@ -39,12 +44,13 @@ function HistoryScreen({navigation}) {
       } 
       } catch (error) {
         console.log(error)
+        console.log("history")
         setLoading(false)
       }
     };
     fetchData();
-  }, []);
-  console.log(weather)
+  }, [search]);
+
 
   return (
     <>
@@ -72,7 +78,7 @@ function HistoryScreen({navigation}) {
             translucent={true}
             barStyle="light-content"
           />
-          <ScrollView>
+          <View>
             <ImageBackground
               source={require('../assets/images/History.jpg')}
               resizeMode="cover"
@@ -84,9 +90,6 @@ function HistoryScreen({navigation}) {
                     onPress={() => navigation.toggleDrawer()}>
                     <Ic_Bar color="white" />
                   </TouchableOpacity>
-                  <Text className="text-xl font-light text-white my-auto">
-                    Sửa
-                  </Text>
                 </View>
                 <Text className="text-white text-3xl">Thời tiết</Text>
                 <View>
@@ -129,7 +132,7 @@ function HistoryScreen({navigation}) {
                 </View>
               </View>
             </ImageBackground>
-          </ScrollView>
+          </View>
         </SafeAreaView>
       )}
     </>

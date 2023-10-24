@@ -82,5 +82,9 @@ export const windType = type => {
   return windName;
 };
 export const checkUv = (uv)=>{
-  
+  if(checkCode([0,1,2],uv)) return "Rất yếu"
+  else if(checkCode([3,4,5],uv)) return "Yếu"
+  else if(checkCode([6,7],uv)) return "Mạnh"
+  else if(checkCode([8,9,10],uv)) return "Rất mạnh"
+  else return "Cực mạnh"
 }

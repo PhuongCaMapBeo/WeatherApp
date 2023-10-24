@@ -38,7 +38,7 @@ function CardAir({data}) {
         <Image source={windIcon} className="w-8 h-8" />
         <Text className="text-white text-xl mx-auto my-auto ml-4">Chất lượng không khí</Text>
       </View>
-      <Text className={`text-3xl font-semibold mt-3`} style={{color: `${airAdvice.color}`}}>{airAdvice.alert}</Text>
+      <Text className={`text-3xl font-semibold mt-3`} style={{color:airAdvice.color }}>{airAdvice.alert}</Text>
       <Text className="text-white text-xl mt-2 text-justify">{airAdvice.message}</Text>
       <View className="flex flex-row justify-between mt-4">
       <ScrollView

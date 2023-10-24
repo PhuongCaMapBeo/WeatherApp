@@ -7,6 +7,7 @@ import {
   ScrollView,
   StatusBar,
   ImageBackground,
+  Linking,
 } from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -15,17 +16,15 @@ import {CalendarDaysIcon, MapPinIcon} from 'react-native-heroicons/solid';
 import {debounce} from 'lodash';
 import {theme} from '../theme';
 import {fetchWeatherFuture} from '../api/weather';
-import {getData, storeData} from '../utils/asyncStorage';
 import {Ic_Rain, Ic_Uv, Ic_Bar} from '../components/Icons';
-import {backgroundGenerator} from '../utils/funcSupport';
 import Dialog from "react-native-dialog";
 import * as Progress from 'react-native-progress';
 import {Popup} from 'react-native-popup-confirm-toast'
 
 
+
 export default function FutureScreen({navigation}) {
   const [showSearch, toggleSearch] = useState(false);
-  const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(false);
   const [weather, setWeather] = useState({});
@@ -50,7 +49,7 @@ export default function FutureScreen({navigation}) {
       Popup.show({
         type: 'danger',
         title: 'Thất bại!',
-        textBody: 'Thời gian phải ở định dạng yyyy-MM-dd và trong khoảng từ 14 ngày đến 300 ngày kể từ hôm nay trong tương lai. ',
+        textBody: 'Thời gian phải ở định dạng yyyy-MM-dd và trong khoảng từ 14 ngày đến 300 ngày kể từ hôm nay trong tương lai hoặc địa điểm không hợp lệ. ',
         buttonText: 'OK',
         callback: () => {Popup.hide(), setErr(false)}
       });
@@ -106,7 +105,7 @@ export default function FutureScreen({navigation}) {
       </View>
       ) : (
       <ImageBackground
-        source={require('../assets/images/morning.jpg')}
+        source={require('../assets/images/future.jpg')}
         resizeMode="cover"
         style={{height: '100%', width: '100%'}}>
         {loading ? null : (
@@ -133,7 +132,7 @@ export default function FutureScreen({navigation}) {
                 <Dialog.Input label="Địa điểm"  onChangeText={(e)=>setLoc(e)} value={loc}/>
                 <Dialog.Input label="Thời gian" onChangeText={(e)=>setTime(e)} value={time} />
                 <Dialog.Button label="Hủy bỏ" onPress={handleCancel}  />
-                <Dialog.Button label="Tìm kiếm" onPress={handleSearch} />
+                <Dialog.Button label="Tìm kiếm" onPress={handleSearch} disabled ={!(time !== "" && loc !== "")} color={!(time !== "" && loc !== "") ? "#878282" : "#169689"}  />
               </Dialog.Container>
             </View>
 

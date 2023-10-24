@@ -74,7 +74,7 @@ function AppNavigation() {
         options={
           {
             drawrLabel: "Dự báo thời tiết tương lai",
-            title: "Dự báo thời tiết tương lai",
+            title: "Dự báo thời tiết",
             drawerIcon: ()=>(
               <Ic_Future />
             ),

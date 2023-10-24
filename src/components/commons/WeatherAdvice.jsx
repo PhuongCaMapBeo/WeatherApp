@@ -2,7 +2,6 @@ import {View,Text} from "react-native";
 import {theme} from '../../theme/index';
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { adaptNavigationTheme } from "react-native-paper";
 
 function WeatherAdvice({code}) {
     
@@ -15,13 +14,13 @@ function WeatherAdvice({code}) {
                     let dataAdvice = [ res.data.weatherConVn,res.data.adviceVn]
                     setAdvice(dataAdvice);
                 }catch{
-                    let dataAdvice = ["Trời nắng và trong trẻo", "Hãy tận hưởng thời tiết đẹp!"]
-                    setAdvice(dataAdvice);
+                   console.log('errorWeatherAdvice')
                 }
             };
             dataAdvice();
         }else{
-
+            let dataAdvice = ["Trời nắng và trong trẻo", "Hãy tận hưởng thời tiết đẹp!"]
+            setAdvice(dataAdvice);
         }
 
     }, [code])

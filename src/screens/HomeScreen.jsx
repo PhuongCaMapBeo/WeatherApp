@@ -8,6 +8,7 @@ import {
   StatusBar,
   PermissionsAndroid,
   ImageBackground,
+  Linking,
 } from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -22,7 +23,7 @@ import {SelectList} from 'react-native-dropdown-select-list';
 import WeatherAdvice from '../components/commons/WeatherAdvice';
 import Geolocation from 'react-native-geolocation-service';
 
-import {backgroundGenerator, windType} from '../utils/funcSupport';
+import {backgroundGenerator, checkUv, windType} from '../utils/funcSupport';
 import CardAir from '../components/commons/CardAir';
 import CardDetail from '../components/commons/CardDetail';
 import {
@@ -35,7 +36,9 @@ import {
   Ic_Bar,
 } from '../components/Icons/index';
 import * as Progress from 'react-native-progress';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { searchSlice } from '../redux/searchSlice';
+
 
 export default function HomeScreen({navigation}) {
   const [showSearch, toggleSearch] = useState(false);
@@ -48,16 +51,22 @@ export default function HomeScreen({navigation}) {
   const wind = useSelector((state) => state.set.wind);
 
   const [unitWind,setUnitWind] = useState(wind);
+  // const [userLocation, setUserLocation] = useState(null);
  
   useEffect(()=> setNumberForecastDay(numberOfDay),[numberOfDay]);
   useEffect(()=>setUnitWind(wind),[wind])
 
+  const temp= useSelector((state) => state.set.temp);
+
+  const [unitTemp,setUnitTemp] = useState(temp);
+  useEffect(()=>setUnitTemp(temp),[temp]);
+
+  const dispatch = useDispatch();
+
  
   const handleSearch = search => {
-    // console.log('value: ',search);
     if (search && search.length > 2)
       fetchLocations({cityName: search}).then(data => {
-        // console.log('got locations: ',data);
         setLocations(data);
       });
   };
@@ -66,7 +75,8 @@ export default function HomeScreen({navigation}) {
     setLoading(true);
     toggleSearch(false);
     setLocations([]);
-    let historyLoc = JSON.parse(await getData('HistoryLoc')) || [];
+    let historyLoc =await getData('HistoryLoc') || [];
+    console.log(historyLoc);
     if (historyLoc) {
       if (historyLoc.length < 4) {
         historyLoc.push(loc.name);
@@ -74,15 +84,17 @@ export default function HomeScreen({navigation}) {
         console.log(1);
       } else {
         historyLoc.shift();
-        console.log(historyLoc);
+        console.log("cat",historyLoc);
         historyLoc.push(loc.name);
         storeData('HistoryLoc', JSON.stringify(historyLoc));
+        console.log("them", historyLoc);
+        console.log(2);
       }
     } else {
       storeData('HistoryLoc', JSON.stringify([loc.name]));
-      console.log(2);
     }
-    console.log(loc.name);
+    dispatch(searchSlice.actions.searchHistory());
+  
     fetchWeatherForecast({
       cityName: loc.name,
       days: numberForecastDay,
@@ -90,7 +102,10 @@ export default function HomeScreen({navigation}) {
       setLoading(false);
       setWeather(data);
       storeData('city', loc.name);
-    });
+    }).catch(error => {
+      console.log(error,"aaaa");
+      return error;
+    });;
   };
 
   useEffect(() => {
@@ -98,11 +113,11 @@ export default function HomeScreen({navigation}) {
   }, [numberForecastDay]);
 
   const fetchMyWeatherData = async () => {
-    let myCity = await getData('city');
+    // let myCity = await getData('city');
     let cityName = 'Ha Noi';
-    if (myCity) {
-      cityName = myCity;
-    }
+    // if (myCity) {
+    //   cityName = myCity;
+    // }
     fetchWeatherForecast({
       cityName,
       days: numberForecastDay,
@@ -112,46 +127,60 @@ export default function HomeScreen({navigation}) {
         setLoading(false);
       })
       .catch(error => {
-        console.log(error);
+        console.log(error,"aaaa");
         return error;
       });
+    
   };
 
   const handleTextDebounce = useCallback(debounce(handleSearch, 1200), []);
 
   const {location, current} = weather;
 
-  useEffect(() => {
-    requestCameraPermission();
-  }, []);
+  // useEffect(() => {
+  //   requestCameraPermission();
+  // }, []);
 
-  const requestCameraPermission = async () => {
-    try {
-      setLoading(true);
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('You can use the camera');
-      } else {
-        console.log('Camera permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
+  // const requestCameraPermission = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const granted = await PermissionsAndroid.request(
+  //       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+  //     );
+  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //       geoLocation();
+  //       console.log(userLocation);
+  //       // let lat = position.coords.latitude;
+  //       // let lon = position.coords.longitude;
+  //       // getAddress(lat,lon);
+  //     } else {
+  //       console.log('Camera permission denied');
+  //     }
+  //   } catch (err) {
+  //     console.warn(err);
+  //   }
+  // };
+  // const getAddress = async(lat,lon)=>{
+  //         try{
+  //           const res = await axios.post(`http://api.openweathermap.org/data/2.5/forecast?lat={20.4490169}&lon={106.4219568}&appid=098259b0a08dd5a60ecbb11b38083a46&units=metric`);
+  //           console.log(res.data);
 
-  const geoLocation = () => {
-    Geolocation.getCurrentPosition(
-      position => {},
-      error => {
-        // See error code charts below.
-        console.log(error.code, error.message);
-      },
-      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-    );
-  };
-  geoLocation();
+  //         }catch(err){
+  //                 console.log('getAddress',err);
+  //         }
+  // }
+  // const geoLocation = () => {
+  //   Geolocation.getCurrentPosition(
+  //     position => setUserLocation(position.coords),
+  //     error => {
+  //       // See error code charts below.
+  //       console.log(error.code, error.message);
+  //     },
+  //     {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+  //   );
+  // };
+ 
+  // getAddress( 20.4490169,106.4219568)
 
   return (
     <>
@@ -269,7 +298,7 @@ export default function HomeScreen({navigation}) {
                   {/* degree celcius */}
                   <View className="space-y-2 mt-4">
                     <Text className="text-center font-bold text-white text-6xl ml-5">
-                      {current?.temp_c}&#176;
+                      {unitTemp ==='c' ? current?.temp_c : current?.temp_f}&#176;
                     </Text>
                     <Text className="text-center text-white text-xl tracking-widest">
                       {current?.condition?.text}
@@ -298,7 +327,7 @@ export default function HomeScreen({navigation}) {
                               className="w-11 h-11"
                             />
                             <Text className="text-white text-xl font-medium text-center">
-                              {item?.temp_c}&#176;
+                              {unitTemp ==='c' ? item?.temp_c : item?.temp_f}&#176;
                             </Text>
                           </View>
                         );
@@ -335,8 +364,8 @@ export default function HomeScreen({navigation}) {
                     <CardDetail
                       Icon={Ic_Temperature}
                       title={'Nhiệt độ cảm nhận'}
-                      info={current?.feelslike_c}
-                      unit={'°C'}
+                      info={unitTemp ==='c' ? current?.feelslike_c : current?.feelslike_f}
+                      unit={unitTemp ==='c' ? '°C' : '°F'}
                     />
                     <CardDetail
                       Icon={Ic_Wind}
@@ -360,7 +389,7 @@ export default function HomeScreen({navigation}) {
                       Icon={Ic_Uv}
                       title={'UV'}
                       info={current?.uv}
-                      unit=""
+                      unit={checkUv(current?.uv)}
                     />
                     <CardDetail
                       Icon={Ic_Pressure}

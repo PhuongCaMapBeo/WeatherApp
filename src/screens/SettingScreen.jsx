@@ -57,15 +57,15 @@ function SettingScreen({navigation}) {
               <SwitchSelector
                 initial={0}
                 valuePadding={0}
-                // onPress={value => this.setState({ gender: value })}
+                onPress={value => dispatch(setSlice.actions.setTemp(value))}
                 textColor={'#0893c9'} //'#7a44cf'
                 selectedColor={'#fff'}
                 buttonColor={'#0893c9'}
                 borderColor={'#0893c9'}
                 hasPadding
                 options={[
-                  {label: 'F', value: 'f'},
                   {label: 'C', value: 'c'},
+                  {label: 'F', value: 'f'},
                 ]}
                 testID="gender-switch-selector"
                 accessibilityLabel="gender-switch-selector"
@@ -140,7 +140,7 @@ function SettingScreen({navigation}) {
             </List.Section>
           </View>
         </View>
-        <View className="mx-auto mt-4">
+        <View className="mx-auto mt-10 mb-4">
           <Text className="opacity-60">
             Thông tin được cung cấp bởi{' '}
             <Text
