@@ -17,11 +17,14 @@ import {apiKey} from '../constrants';
 import {backgroundGenerator} from '../utils/funcSupport';
 import {ScrollView} from 'react-native-gesture-handler';
 import * as Progress from 'react-native-progress';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { searchSlice } from '../redux/searchSlice';
 
 function HistoryScreen({navigation}) {
   const [loading, setLoading] = useState(false);
   const [weather, setWeather] = useState([]);
+  const [dataLoc,setDataLoc] = useState([]);
+  const dispatch = useDispatch();
 
   const search = useSelector(state => state.search.search);
 
@@ -30,10 +33,11 @@ function HistoryScreen({navigation}) {
       setLoading(true);
       try {
       let data=await getData('HistoryLoc');
-      data = data.reverse();
+      data = data?.reverse();
+      setDataLoc(data);
 
     // get từ localstorage
-      if (data.length !== 0) {
+      if (data?.length !== 0) {
         let dataApi=[]
         for(loc of data){
          const res= await axios.get(`https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${loc}&days=${1}&aqi=yes&alerts=no&lang=vi`)
@@ -51,6 +55,7 @@ function HistoryScreen({navigation}) {
     fetchData();
   }, [search]);
 
+  
 
   return (
     <>
@@ -95,7 +100,11 @@ function HistoryScreen({navigation}) {
                 <View>
                   {weather.map((loc, index) => {
                     return (
-                      <Card className="mt-4" key={index}>
+                      <Card className="mt-4" key={index} onPress={()=> 
+                        { navigation.jumpTo('Home', { selectedLocation: dataLoc[index]})
+                          dispatch(searchSlice.actions.locHistory(dataLoc[index]));
+                      }
+                      }>
                         <View className="relative">
                           <Card.Cover
                             source={backgroundGenerator(

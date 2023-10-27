@@ -24,6 +24,7 @@ import { setSlice } from '../redux/setSlice';
 function SettingScreen({navigation}) {
   const [expanded, setExpanded] = React.useState(false);
   const handlePress = () => setExpanded(!expanded);
+  const [expandedInfo, setExpandedInfo] = React.useState(false);
   const dispatch = useDispatch();
   const handleItemPress = (itemValue)=>{
       dispatch(setSlice.actions.setNumberOfDay(itemValue));
@@ -102,10 +103,10 @@ function SettingScreen({navigation}) {
 
               <List.Accordion
                 title="Số ngày dự báo"
-                style={{paddingLeft: 12, paddingTop: 1, paddingBottom: 1, backgroundColor:expanded?"#ccc":"white"}}
+                style={{paddingLeft: 12, paddingTop: 1, paddingBottom: 1}}
                 titleStyle={{fontSize: 18, marginTop: -8}}
                 right={props => <Ic_ChevronDown />}
-                left={props => <Ic_Date />}
+                left={props => <Ic_Date color ={expanded ? "#9ecbe6": "black"}/>}
                 expanded={expanded}
                 onPress={handlePress}
                 theme={{
@@ -114,7 +115,7 @@ function SettingScreen({navigation}) {
                   }
                   }}
                 >
-                <List.Item title="7 ngày" onPress ={()=> handleItemPress(7)} className={"border-b-[0.5px] border-neutral-300 justify-between flex pr-0"}/>
+                <List.Item title="7 ngày" onPress ={()=> handleItemPress(7)} className={"border-b-[0.5px] border-neutral-300 justify-between flex pr-0"} />
                 <List.Item title="3 ngày" onPress ={()=> handleItemPress(3)} className={"border-b-[0.5px] border-neutral-300 justify-between flex pr-0"}/>
               </List.Accordion>
               <List.Accordion
@@ -122,7 +123,12 @@ function SettingScreen({navigation}) {
                 style={{paddingLeft: 12, paddingTop: 1, paddingBottom: 1}}
                 titleStyle={{fontSize: 18, marginTop: -8}}
                 right={props => <Ic_ChevronRight />}
-                left={props => <Ic_Info />}></List.Accordion>
+                left={props => <Ic_Info color ={expandedInfo ? "#9ecbe6": "black"} />}
+                theme={{
+                  colors: {
+                    primary:  '#9ecbe6' , // Màu nhãn và đường viền
+                  }
+                  }}></List.Accordion>
             </List.Section>
           </View>
           <View className="bg-white rounded-lg my-2">
@@ -131,12 +137,22 @@ function SettingScreen({navigation}) {
                 title="Trợ giúp"
                 style={{paddingTop: 1, paddingBottom: 1}}
                 titleStyle={{fontSize: 18}}
-                right={props => <Ic_ChevronRight />}></List.Accordion>
+                right={props => <Ic_ChevronRight  />}
+                theme={{
+                  colors: {
+                    primary:  '#9ecbe6' , // Màu nhãn và đường viền
+                  }
+                  }}></List.Accordion>
               <List.Accordion
                 title="Quản lý và chính sách"
                 style={{paddingTop: 1, paddingBottom: 1}}
                 titleStyle={{fontSize: 18}}
-                right={props => <Ic_ChevronRight />}></List.Accordion>
+                right={props => <Ic_ChevronRight />}
+                theme={{
+                  colors: {
+                    primary:  '#9ecbe6' , // Màu nhãn và đường viền
+                  }
+                  }}></List.Accordion>
             </List.Section>
           </View>
         </View>

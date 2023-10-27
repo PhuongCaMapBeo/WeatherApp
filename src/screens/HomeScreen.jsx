@@ -19,9 +19,9 @@ import {theme} from '../theme/index';
 import {fetchLocations, fetchWeatherForecast} from '../api/weather';
 import {getData, storeData} from '../utils/asyncStorage';
 import FormForecastDay from '../components/commons/FormForecastDay';
-import {SelectList} from 'react-native-dropdown-select-list';
 import WeatherAdvice from '../components/commons/WeatherAdvice';
 import Geolocation from 'react-native-geolocation-service';
+
 
 import {backgroundGenerator, checkUv, windType} from '../utils/funcSupport';
 import CardAir from '../components/commons/CardAir';
@@ -40,11 +40,30 @@ import { useDispatch, useSelector } from 'react-redux';
 import { searchSlice } from '../redux/searchSlice';
 
 
-export default function HomeScreen({navigation}) {
+
+export default function HomeScreen({navigation,route}) {
   const [showSearch, toggleSearch] = useState(false);
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [weather, setWeather] = useState({});
+  const selectedLocation = useSelector(state=> state.search.loc);
+  
+  useEffect(()=>{
+    if(selectedLocation){
+    setLoading(true);
+    fetchWeatherForecast({
+      cityName: selectedLocation,
+      days: numberForecastDay,
+    }).then(data => {
+      setWeather(data);
+      setLoading(false);
+    }).catch(error => {
+      console.log(error,"aaaa");
+      return error;
+    });
+  }
+  },[selectedLocation])
+ 
 
   const numberOfDay = useSelector((state) => state.set.numberOfDay);
   const [numberForecastDay, setNumberForecastDay] = useState('7');
@@ -65,7 +84,7 @@ export default function HomeScreen({navigation}) {
 
  
   const handleSearch = search => {
-    if (search && search.length > 2)
+    if (search && search?.length > 2)
       fetchLocations({cityName: search}).then(data => {
         setLocations(data);
       });
@@ -78,17 +97,13 @@ export default function HomeScreen({navigation}) {
     let historyLoc =await getData('HistoryLoc') || [];
     console.log(historyLoc);
     if (historyLoc) {
-      if (historyLoc.length < 4) {
+      if (historyLoc?.length < 4) {
         historyLoc.push(loc.name);
         storeData('HistoryLoc', JSON.stringify(historyLoc));
-        console.log(1);
       } else {
         historyLoc.shift();
-        console.log("cat",historyLoc);
         historyLoc.push(loc.name);
         storeData('HistoryLoc', JSON.stringify(historyLoc));
-        console.log("them", historyLoc);
-        console.log(2);
       }
     } else {
       storeData('HistoryLoc', JSON.stringify([loc.name]));
@@ -136,51 +151,6 @@ export default function HomeScreen({navigation}) {
   const handleTextDebounce = useCallback(debounce(handleSearch, 1200), []);
 
   const {location, current} = weather;
-
-  // useEffect(() => {
-  //   requestCameraPermission();
-  // }, []);
-
-  // const requestCameraPermission = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const granted = await PermissionsAndroid.request(
-  //       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-  //     );
-  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-  //       geoLocation();
-  //       console.log(userLocation);
-  //       // let lat = position.coords.latitude;
-  //       // let lon = position.coords.longitude;
-  //       // getAddress(lat,lon);
-  //     } else {
-  //       console.log('Camera permission denied');
-  //     }
-  //   } catch (err) {
-  //     console.warn(err);
-  //   }
-  // };
-  // const getAddress = async(lat,lon)=>{
-  //         try{
-  //           const res = await axios.post(`http://api.openweathermap.org/data/2.5/forecast?lat={20.4490169}&lon={106.4219568}&appid=098259b0a08dd5a60ecbb11b38083a46&units=metric`);
-  //           console.log(res.data);
-
-  //         }catch(err){
-  //                 console.log('getAddress',err);
-  //         }
-  // }
-  // const geoLocation = () => {
-  //   Geolocation.getCurrentPosition(
-  //     position => setUserLocation(position.coords),
-  //     error => {
-  //       // See error code charts below.
-  //       console.log(error.code, error.message);
-  //     },
-  //     {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-  //   );
-  // };
- 
-  // getAddress( 20.4490169,106.4219568)
 
   return (
     <>
@@ -258,10 +228,10 @@ export default function HomeScreen({navigation}) {
                         )}
                       </TouchableOpacity>
                     </View>
-                    {locations.length > 0 && showSearch ? (
+                    {locations?.length > 0 && showSearch ? (
                       <View className="absolute w-full bg-gray-300 top-16 rounded-3xl ">
                         {locations.map((loc, index) => {
-                          let showBorder = index + 1 != locations.length;
+                          let showBorder = index + 1 != locations?.length;
                           let borderClass = showBorder
                             ? ' border-b-2 border-b-gray-400'
                             : '';

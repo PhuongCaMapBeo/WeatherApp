@@ -8,8 +8,6 @@ import FutureScreen from '../screens/FutureScreen';
 import HistoryScreen from '../screens/HistoryScreen';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Ic_History } from '../components/Icons/Ic_History';
-import { Ic_Eye } from '../components/Icons/Ic_Eye';
-import CustomDrawerContent from '../components/commons/CustomDrawerContent';
 import { Ic_Setting } from '../components/Icons/Ic_Setting';
 import SettingScreen from '../screens/SettingScreen';
 
@@ -27,7 +25,6 @@ function AppNavigation() {
   return (
     <Drawer.Navigator
       initialRouteName="Home"
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={
         {
           drawerStyle:{

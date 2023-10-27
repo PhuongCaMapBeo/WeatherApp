@@ -19,7 +19,8 @@ import {fetchWeatherFuture} from '../api/weather';
 import {Ic_Rain, Ic_Uv, Ic_Bar} from '../components/Icons';
 import Dialog from "react-native-dialog";
 import * as Progress from 'react-native-progress';
-import {Popup} from 'react-native-popup-confirm-toast'
+import {Popup} from 'react-native-popup-confirm-toast';
+import { useSelector } from 'react-redux';
 
 
 
@@ -30,6 +31,9 @@ export default function FutureScreen({navigation}) {
   const [weather, setWeather] = useState({});
   const [loc, setLoc] = useState("");
   const [time,setTime] = useState("");
+  const temp= useSelector((state) => state.set.temp);
+  const [unitTemp,setUnitTemp] = useState(temp);
+  useEffect(()=>setUnitTemp(temp),[temp]);
 
   const handleSearch = search => {
       setLoading(true);
@@ -156,7 +160,7 @@ export default function FutureScreen({navigation}) {
               {/* degree celcius */}
               <View className="space-y-2">
                 <Text className="text-center font-bold text-white text-6xl ml-5">
-                  {weather?.forecast?.forecastday[0]?.day?.avgtemp_c}&#176;
+                  {unitTemp==='c' ? weather?.forecast?.forecastday[0]?.day?.avgtemp_c : weather?.forecast?.forecastday[0]?.day?.avgtemp_f}&#176;
                 </Text>
                 <Text className="text-center text-white text-xl tracking-widest">
                   {weather?.forecast?.forecastday[0]?.day?.condition?.text}
@@ -188,7 +192,7 @@ export default function FutureScreen({navigation}) {
             <View className="mb-2 space-y-3">
               <View className="flex-row items-center mx-5 space-x-2">
                 <CalendarDaysIcon size="22" color="white" />
-                <Text className="text-white text-base">Daily forecast</Text>
+                <Text className="text-white text-base">Dự báo hàng giờ</Text>
               </View>
               <ScrollView
                 horizontal
